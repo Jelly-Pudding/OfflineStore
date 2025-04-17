@@ -1,0 +1,18 @@
+# Default costs for each colour in the shop. Players spend tokens to unlock these.
+# Once unlocked, they can switch to the colour freely using /shop colour set <colour>.
+colour_costs:
+  black: 10000
+  dark_blue: 1500
+  dark_green: 1000
+  dark_aqua: 1500
+  dark_red: 1500
+  dark_purple: 1500
+  gold: 3000
+  gray: 500
+  dark_gray: 750
+  blue: 1000
+  green: 1000
+  aqua: 1500
+  light_purple: 2500
+  yellow: 1000
+  white: 0
