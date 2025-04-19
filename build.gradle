@@ -24,7 +24,7 @@ dependencies {
     // Dependencies for local plugins (needed for compilation/IDE)
     compileOnly files('libs/SimpleVote-2.0.jar')
     compileOnly files('libs/ChromaTag-1.1.0.jar')
-    compileOnly files('libs/SimpleLifesteal-1.0-SNAPSHOT.jar')
+    compileOnly files('libs/SimpleLifesteal-1.0.jar')
 }
 
 tasks {
