@@ -16,3 +16,5 @@ colour_costs:
   light_purple: 2500
   yellow: 1000
   white: 0
+
+heart_cost: 5

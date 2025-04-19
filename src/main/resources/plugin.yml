@@ -1,14 +1,14 @@
 name: OfflineStore
-version: '1.0-SNAPSHOT'
+version: '1.0'
 main: com.jellypudding.offlineStore.OfflineStore
 api-version: '1.21'
 description: A small shop plugin for MinecraftOffline
 author: AlphaAlex115
-depend: [SimpleVote, ChromaTag]
+depend: [SimpleVote, ChromaTag, SimpleLifesteal]
 
 commands:
   shop:
-    description: Opens the shop or manages categories like colours.
+    description: Access the shop and buy hearts and name colours with tokens.
     usage: /shop <category> <action> [value] (e.g., /shop colour list)
     permission: offlinestore.use
 

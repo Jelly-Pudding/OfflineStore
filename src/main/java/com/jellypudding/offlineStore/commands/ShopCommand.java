@@ -3,6 +3,8 @@ package com.jellypudding.offlineStore.commands;
 import com.jellypudding.chromaTag.ChromaTag;
 import com.jellypudding.offlineStore.OfflineStore;
 import com.jellypudding.offlineStore.data.ColorOwnershipManager;
+import com.jellypudding.simpleLifesteal.SimpleLifesteal;
+import com.jellypudding.simpleLifesteal.managers.PlayerDataManager;
 import com.jellypudding.simpleVote.TokenManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -21,12 +23,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-// Renamed from ColorShopCommand
 public class ShopCommand implements CommandExecutor, TabCompleter {
 
     private final OfflineStore plugin;
 
-    // Copied from ChromaTag for utility - Maps lowercase name to hex string
     private static final Map<String, String> NAMED_COLOURS = new HashMap<>();
     static {
         NAMED_COLOURS.put("black", "#000000");
@@ -47,12 +47,10 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         NAMED_COLOURS.put("white", "#FFFFFF");
     }
 
-    // Define categories
-    private static final List<String> CATEGORIES = List.of("colour");
-    // Define actions per category
+    private static final List<String> CATEGORIES = List.of("colour", "heart");
     private static final Map<String, List<String>> CATEGORY_ACTIONS = Map.of(
-            "colour", List.of("list", "buy", "set", "reset")
-            // Add other categories and their actions here later
+            "colour", List.of("list", "buy", "set", "reset"),
+            "heart", List.of("buy", "info")
     );
 
     public ShopCommand(OfflineStore plugin) {
@@ -79,11 +77,11 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        // Handle specific category logic
         if (category.equals("colour")) {
             handleColourCommand(player, args);
+        } else if (category.equals("heart")) {
+            handleHeartCommand(player, args);
         } else {
-            // Handle other categories later
             player.sendMessage(Component.text("Category '" + category + "' not yet implemented.").color(NamedTextColor.YELLOW));
         }
 
@@ -91,6 +89,12 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleColourCommand(Player player, String[] args) {
+        ChromaTag chromaTag = plugin.getChromaTag();
+        if (chromaTag == null) {
+            player.sendMessage(Component.text("Colour features are currently unavailable (ChromaTag plugin missing or disabled).").color(NamedTextColor.RED));
+            return;
+        }
+
         if (args.length < 2) {
             sendColourUsage(player);
             return;
@@ -101,29 +105,58 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
 
         switch (action) {
             case "list":
-                listColours(player);
+                listColours(player, chromaTag);
                 break;
             case "buy":
                 if (value == null) {
                     player.sendMessage(Component.text("Usage: /shop colour buy <colourName>").color(NamedTextColor.RED));
                     return;
                 }
-                buyColour(player, value);
+                buyColour(player, value, chromaTag);
                 break;
             case "set":
                  if (value == null) {
                     player.sendMessage(Component.text("Usage: /shop colour set <colourName>").color(NamedTextColor.RED));
                     return;
                 }
-                setColour(player, value);
+                setColour(player, value, chromaTag);
                 break;
             case "reset":
-                resetColour(player);
+                resetColour(player, chromaTag);
                 break;
             default:
                 player.sendMessage(Component.text("Unknown action for colour category: " + action).color(NamedTextColor.RED));
                 sendColourUsage(player);
                 break;
+        }
+    }
+
+    private void handleHeartCommand(Player player, String[] args) {
+        SimpleLifesteal slApi = plugin.getSimpleLifesteal();
+        TokenManager tokenManager = plugin.getTokenManager();
+
+        if (slApi == null) {
+            player.sendMessage(Component.text("Error: SimpleLifesteal integration is disabled or not loaded.").color(NamedTextColor.RED));
+            return;
+        }
+         if (tokenManager == null) {
+            player.sendMessage(Component.text("Error: Token system is unavailable.").color(NamedTextColor.RED));
+            return;
+        }
+
+        String action = (args.length > 1) ? args[1].toLowerCase() : "info";
+
+        switch (action) {
+            case "buy":
+                buyHeart(player, slApi, tokenManager, plugin.getHeartCost());
+                break;
+            case "info":
+                showHeartInfo(player, slApi, plugin.getHeartCost());
+                break;
+            default:
+                 player.sendMessage(Component.text("Unknown action for heart category: " + action).color(NamedTextColor.RED));
+                 sendHeartUsage(player, plugin.getHeartCost());
+                 break;
         }
     }
 
@@ -140,7 +173,13 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(Component.text(" /shop colour reset").color(NamedTextColor.YELLOW));
     }
 
-    // Utility to get TextColor from string name/hex
+    private void sendHeartUsage(Player player, int heartCost) {
+        player.sendMessage(Component.text("Heart Shop Usage:").color(NamedTextColor.GOLD));
+        player.sendMessage(Component.text(" /shop heart info").color(NamedTextColor.YELLOW).append(Component.text(" - Show current/max hearts")));
+        player.sendMessage(Component.text(" /shop heart buy").color(NamedTextColor.YELLOW).append(Component.text(" - Buy 1 heart for " + heartCost + " tokens")));
+    }
+
+
     private TextColor getColourFromString(String colourString) {
         if (colourString == null) {
             return null;
@@ -163,15 +202,12 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         }
     }
 
-    // Utility to find the name of a TextColor
     private String getColourName(TextColor colour) {
         if (colour == null) return "default";
-        // Check standard named colours first
-        String name = NamedTextColor.NAMES.key(NamedTextColor.nearestTo(colour)); // Find closest standard name
+        String name = NamedTextColor.NAMES.key(NamedTextColor.nearestTo(colour));
         if (name != null && TextColor.fromHexString(NAMED_COLOURS.get(name)).equals(colour)) {
-             return name; // Return standard name if exact match
+             return name;
         }
-        // Check our map (which includes named colours but ensures exact match)
         for (Map.Entry<String, String> entry : NAMED_COLOURS.entrySet()) {
             try {
                 if (TextColor.fromHexString(entry.getValue()).equals(colour)) {
@@ -179,27 +215,22 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
                 }
             } catch (IllegalArgumentException ignored) {}
         }
-        // Fallback to hex if no name found
         return colour.asHexString();
     }
 
-    private void listColours(Player player) {
+    private void listColours(Player player, @NotNull ChromaTag chromaTag) {
         Map<String, Integer> costs = plugin.getColourCosts();
         TokenManager tokenManager = plugin.getTokenManager();
-        ChromaTag chromaTag = plugin.getChromaTag();
         ColorOwnershipManager ownershipManager = plugin.getColourOwnershipManager();
 
         if (tokenManager == null || ownershipManager == null) {
             player.sendMessage(Component.text("Error: A required system (Tokens or Ownership) is unavailable.").color(NamedTextColor.RED));
             return;
         }
-        if (chromaTag == null) {
-             player.sendMessage(Component.text("Warning: ChromaTag system is unavailable. Cannot show current colour.").color(NamedTextColor.YELLOW));
-        }
 
         int currentTokens = tokenManager.getTokens(player.getUniqueId());
-        TextColor currentColour = (chromaTag != null) ? chromaTag.getPlayerColor(player.getUniqueId()) : null;
-        String currentColourName = getColourName(currentColour); // Get the name
+        TextColor currentColour = chromaTag.getPlayerColor(player.getUniqueId());
+        String currentColourName = getColourName(currentColour);
         Set<String> ownedColours = ownershipManager.getOwnedColors(player.getUniqueId());
 
         player.sendMessage(Component.text("--- Colour Shop ---").color(NamedTextColor.GOLD));
@@ -266,14 +297,13 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(Component.text("-------------------").color(NamedTextColor.GOLD));
     }
 
-    private void buyColour(Player player, String colourName) {
+    private void buyColour(Player player, String colourName, @NotNull ChromaTag chromaTag) {
         TokenManager tokenManager = plugin.getTokenManager();
-        ChromaTag chromaTag = plugin.getChromaTag();
         ColorOwnershipManager ownershipManager = plugin.getColourOwnershipManager();
         Map<String, Integer> costs = plugin.getColourCosts();
         String lowerCaseColourName = colourName.toLowerCase();
 
-        if (tokenManager == null || chromaTag == null || ownershipManager == null) {
+        if (tokenManager == null || ownershipManager == null) {
             player.sendMessage(Component.text("Error: A required system is unavailable.").color(NamedTextColor.RED));
             return;
         }
@@ -327,12 +357,11 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         }
     }
 
-    private void setColour(Player player, String colourName) {
-        ChromaTag chromaTag = plugin.getChromaTag();
+    private void setColour(Player player, String colourName, @NotNull ChromaTag chromaTag) {
         ColorOwnershipManager ownershipManager = plugin.getColourOwnershipManager();
         String lowerCaseColourName = colourName.toLowerCase();
 
-        if (chromaTag == null || ownershipManager == null) {
+        if (ownershipManager == null) {
             player.sendMessage(Component.text("Error: A required system is unavailable.").color(NamedTextColor.RED));
             return;
         }
@@ -363,14 +392,7 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         }
     }
 
-    private void resetColour(Player player) {
-        ChromaTag chromaTag = plugin.getChromaTag();
-
-        if (chromaTag == null) {
-            player.sendMessage(Component.text("Error: ChromaTag system is unavailable.").color(NamedTextColor.RED));
-            return;
-        }
-
+    private void resetColour(Player player, @NotNull ChromaTag chromaTag) {
         boolean success = chromaTag.resetPlayerColor(player.getUniqueId());
         if (success) {
             player.sendMessage(Component.text("Your name colour has been reset to default.").color(NamedTextColor.GREEN));
@@ -378,6 +400,66 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
             player.sendMessage(Component.text("You didn't have a custom colour set.").color(NamedTextColor.YELLOW));
         }
     }
+
+    private void showHeartInfo(Player player, SimpleLifesteal slApi, int heartCost) {
+        PlayerDataManager playerDataManager = slApi.getPlayerDataManager();
+        if (playerDataManager == null) {
+             player.sendMessage(Component.text("Error: Could not access PlayerDataManager.").color(NamedTextColor.RED));
+             return;
+        }
+        // Load data async and show info in callback
+        playerDataManager.loadPlayerData(player, currentHearts -> {
+            int maxHearts = slApi.getMaxHearts();
+            player.sendMessage(Component.text("--- Heart Info ---").color(NamedTextColor.GOLD));
+            player.sendMessage(Component.text("Your current hearts: " + currentHearts + " / " + maxHearts).color(NamedTextColor.YELLOW));
+            if (currentHearts < maxHearts) {
+                player.sendMessage(Component.text("You can buy more hearts!").color(NamedTextColor.GREEN));
+                player.sendMessage(Component.text("Use ")
+                        .append(Component.text("/shop heart buy", NamedTextColor.AQUA).clickEvent(ClickEvent.suggestCommand("/shop heart buy")))
+                        .append(Component.text(" to purchase 1 heart for " + heartCost + " tokens.")));
+            } else {
+                player.sendMessage(Component.text("You are at the maximum number of hearts!").color(NamedTextColor.GREEN));
+            }
+            player.sendMessage(Component.text("------------------").color(NamedTextColor.GOLD));
+        });
+    }
+
+     private void buyHeart(Player player, SimpleLifesteal slApi, TokenManager tokenManager, int heartCost) {
+         PlayerDataManager playerDataManager = slApi.getPlayerDataManager();
+         if (playerDataManager == null) {
+             player.sendMessage(Component.text("Error: Could not access PlayerDataManager.").color(NamedTextColor.RED));
+             return;
+         }
+
+         int currentHearts = playerDataManager.getPlayerHearts(player.getUniqueId());
+         int maxHearts = slApi.getMaxHearts();
+
+         if (currentHearts >= maxHearts) {
+             player.sendMessage(Component.text("You are already at the maximum number of hearts (" + maxHearts + ").").color(NamedTextColor.RED));
+             return;
+         }
+
+         int currentTokens = tokenManager.getTokens(player.getUniqueId());
+         if (currentTokens < heartCost) {
+             player.sendMessage(Component.text("You don't have enough tokens! Need " + heartCost + ", have " + currentTokens + ".").color(NamedTextColor.RED));
+             return;
+         }
+
+         if (tokenManager.removeTokens(player.getUniqueId(), heartCost)) {
+             boolean heartAdded = slApi.addHearts(player.getUniqueId(), 1);
+
+             if (heartAdded) {
+                 int newHearts = playerDataManager.getPlayerHearts(player.getUniqueId());
+                 player.sendMessage(Component.text("Purchased 1 heart for " + heartCost + " tokens! You now have " + newHearts + " hearts.").color(NamedTextColor.GREEN));
+             } else {
+                 tokenManager.addTokens(player.getUniqueId(), heartCost);
+                 player.sendMessage(Component.text("Failed to add heart after purchase (perhaps already at max?). Tokens refunded.").color(NamedTextColor.RED));
+                 plugin.getLogger().warning("Failed to add heart for " + player.getName() + " via SimpleLifesteal API after tokens were removed. Refunding.");
+             }
+         } else {
+             player.sendMessage(Component.text("Failed to process token transaction.").color(NamedTextColor.RED));
+         }
+     }
 
     @Nullable
     @Override
@@ -442,6 +524,8 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
                 }
                 Collections.sort(completions);
                 return completions;
+            } else if (category.equals("heart")) {
+                 return Collections.emptyList();
             }
         }
 
