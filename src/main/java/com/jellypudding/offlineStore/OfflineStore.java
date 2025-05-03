@@ -6,6 +6,7 @@ import com.jellypudding.offlineStore.data.ColorOwnershipManager;
 import com.jellypudding.simpleLifesteal.SimpleLifesteal;
 import com.jellypudding.simpleVote.SimpleVote;
 import com.jellypudding.simpleVote.TokenManager;
+import com.jellypudding.simpleHome.SimpleHome;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
@@ -13,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public final class OfflineStore extends JavaPlugin {
 
@@ -20,8 +22,10 @@ public final class OfflineStore extends JavaPlugin {
     private ChromaTag chromaTag;
     private ColorOwnershipManager colourOwnershipManager;
     private SimpleLifesteal simpleLifesteal;
+    private SimpleHome simpleHome;
     private final Map<String, Integer> colourCosts = new HashMap<>();
     private int heartCost;
+    private final Map<Integer, Integer> homeSlotCosts = new TreeMap<>();
 
     @Override
     public void onEnable() {
@@ -62,6 +66,18 @@ public final class OfflineStore extends JavaPlugin {
             this.simpleLifesteal = null;
         }
 
+        // Hook into SimpleHome
+        Plugin simpleHomePlugin = Bukkit.getPluginManager().getPlugin("SimpleHome");
+        if (simpleHomePlugin instanceof SimpleHome && simpleHomePlugin.isEnabled()) {
+            this.simpleHome = (SimpleHome) simpleHomePlugin;
+            getLogger().info("Successfully hooked into SimpleHome.");
+        } else {
+            // SimpleHome is listed as a hard dependency, so disable if not found/enabled
+            getLogger().warning("SimpleHome plugin not found or not enabled! Home purchasing will be unavailable.");
+            this.simpleHome = null;
+            return;
+        }
+
         // Register commands
         ShopCommand shopCommand = new ShopCommand(this);
         getCommand("shop").setExecutor(shopCommand);
@@ -90,12 +106,12 @@ public final class OfflineStore extends JavaPlugin {
                 int cost = costsSection.getInt(colourName, -1); // Default to -1 if not a valid int
                 if (cost >= 0) { // Only add non-negative costs
                     colourCosts.put(colourName.toLowerCase(), cost);
-                    getLogger().info("Loaded colour cost: " + colourName + " = " + cost);
+                    //getLogger().info("Loaded colour cost: " + colourName + " = " + cost);
                 } else {
                     getLogger().warning("Invalid cost for colour '" + colourName + "' in config.yml. Skipping.");
                 }
             }
-            getLogger().info("Loaded " + colourCosts.size() + " colour costs from config.yml");
+            //getLogger().info("Loaded " + colourCosts.size() + " colour costs from config.yml");
         } else {
             getLogger().warning("Could not find 'colour_costs' section in config.yml. No colours will be available in the shop.");
         }
@@ -107,6 +123,28 @@ public final class OfflineStore extends JavaPlugin {
              this.heartCost = 5;
         }
         getLogger().info("Loaded heart cost: " + this.heartCost);
+
+        ConfigurationSection homeCostsSection = getConfig().getConfigurationSection("home_slot_costs");
+        if (homeCostsSection != null) {
+            homeSlotCosts.clear(); // Clear previous costs if reloading
+            for (String key : homeCostsSection.getKeys(false)) {
+                try {
+                    int slotNumber = Integer.parseInt(key);
+                    int cost = homeCostsSection.getInt(key, -1);
+                    if (slotNumber >= 2 && slotNumber <= 5 && cost >= 0) {
+                        homeSlotCosts.put(slotNumber, cost);
+                        //getLogger().info("Loaded home slot cost: Slot " + slotNumber + " = " + cost);
+                    } else {
+                         getLogger().warning("Invalid entry in 'home_slot_costs' (Slot: " + key + ", Cost: " + cost + "). Slot must be 2-5, cost must be non-negative. Skipping.");
+                    }
+                } catch (NumberFormatException e) {
+                    getLogger().warning("Invalid slot number '" + key + "' in 'home_slot_costs'. It must be an integer (2-5). Skipping.");
+                }
+            }
+            //getLogger().info("Loaded " + homeSlotCosts.size() + " home slot costs from config.yml");
+        } else {
+            getLogger().warning("Could not find 'home_slot_costs' section in config.yml. Home slot purchasing will be unavailable.");
+        }
     }
 
     public TokenManager getTokenManager() {
@@ -125,11 +163,19 @@ public final class OfflineStore extends JavaPlugin {
         return simpleLifesteal;
     }
 
+    public SimpleHome getSimpleHome() {
+        return simpleHome;
+    }
+
     public Map<String, Integer> getColourCosts() {
         return colourCosts;
     }
 
     public int getHeartCost() {
         return heartCost;
+    }
+
+    public Map<Integer, Integer> getHomeSlotCosts() {
+        return homeSlotCosts;
     }
 }
