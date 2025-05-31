@@ -667,13 +667,18 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(Component.text("--- MOTD Shop ---").color(NamedTextColor.GOLD));
         player.sendMessage(Component.text("Your tokens: " + currentTokens).color(NamedTextColor.YELLOW));
         player.sendMessage(Component.text("Purchase a custom MOTD message that appears in the server list.").color(NamedTextColor.GRAY));
-        player.sendMessage(Component.text("First line is always: §6MinecraftOffline.net §8- §cAnarchy Lifesteal Server").color(NamedTextColor.AQUA));
+        player.sendMessage(Component.text("First line is always:").color(NamedTextColor.AQUA));
+        player.sendMessage(Component.text("§6MinecraftOffline.net §8- §cAnarchy Lifesteal Server").color(NamedTextColor.WHITE));
         player.sendMessage(Component.text("You can customise the second line.").color(NamedTextColor.AQUA));
         player.sendMessage(Component.empty());
 
-        for (Map.Entry<String, Integer> entry : costs.entrySet()) {
-            String durationKey = entry.getKey();
-            int cost = entry.getValue();
+        // Process durations in logical order
+        String[] orderedDurations = {"day", "week", "month"};
+        
+        for (String durationKey : orderedDurations) {
+            if (!costs.containsKey(durationKey)) continue;
+            
+            int cost = costs.get(durationKey);
             Integer hours = DURATION_HOURS.get(durationKey);
             
             if (hours == null) continue;
@@ -706,7 +711,7 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
                 .append(Component.text("/shop motd my", NamedTextColor.YELLOW)
                         .clickEvent(ClickEvent.runCommand("/shop motd my")))
                 .append(Component.text(" to see your active MOTDs.")));
-        player.sendMessage(Component.text("Colours: Use & for colours (e.g., &cRed &aGreen)").color(NamedTextColor.GRAY));
+        player.sendMessage(Component.text("Colours: Use & for colours (for example &cRed &aGreen)").color(NamedTextColor.GRAY));
         player.sendMessage(Component.text("-----------------").color(NamedTextColor.GOLD));
     }
 
@@ -749,14 +754,14 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(Component.empty());
         player.sendMessage(Component.text("Your MOTD will look like:").color(NamedTextColor.AQUA));
         
-        // Convert \\n to actual line break for display
-        String[] lines = preview.split("\\\\n");
+        // Split on actual newline characters
+        String[] lines = preview.split("\n");
         for (String line : lines) {
             player.sendMessage(Component.text(line).color(NamedTextColor.WHITE));
         }
         
         player.sendMessage(Component.empty());
-        
+
         if (currentTokens < cost) {
             player.sendMessage(Component.text("Not enough tokens. Need " + cost + ", have " + currentTokens + ".").color(NamedTextColor.RED));
         } else {
@@ -924,7 +929,8 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
                 return Collections.emptyList();
             } else if (category.equals("motd")) {
                 if (action.equals("buy")) {
-                    for (String duration : DURATION_HOURS.keySet()) {
+                    String[] orderedDurations = {"day", "week", "month"};
+                    for (String duration : orderedDurations) {
                         if (duration.startsWith(currentArg)) {
                             completions.add(duration);
                         }
