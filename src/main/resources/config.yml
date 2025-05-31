@@ -1,5 +1,4 @@
-# Default costs for each colour in the shop. Players spend tokens to unlock these.
-# Once unlocked, they can switch to the colour freely using /shop colour set <colour>.
+# Default costs for each colour in the shop.
 colour_costs:
   black: 10000
   dark_blue: 1500
@@ -22,7 +21,13 @@ heart_cost: 5
 # Costs for purchasing additional home slots via SimpleHome plugin integration.
 # Players start with 1 home by default in SimpleHome. Max is 5.
 home_slot_costs:
-  2: 100  # Cost for the 2nd home slot
-  3: 300  # Cost for the 3rd home slot
-  4: 500  # Cost for the 4th home slot
-  5: 1000 # Cost for the 5th home slot
+  2: 100
+  3: 300
+  4: 500
+  5: 1000
+
+# Costs for purchasing custom MOTD messages with different durations
+motd_costs:
+  day: 100
+  week: 500
+  month: 1500

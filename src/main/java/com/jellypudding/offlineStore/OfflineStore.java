@@ -3,6 +3,8 @@ package com.jellypudding.offlineStore;
 import com.jellypudding.chromaTag.ChromaTag;
 import com.jellypudding.offlineStore.commands.ShopCommand;
 import com.jellypudding.offlineStore.data.ColorOwnershipManager;
+import com.jellypudding.offlineStore.data.MotdManager;
+import com.jellypudding.offlineStore.listeners.ServerListPingListener;
 import com.jellypudding.simpleLifesteal.SimpleLifesteal;
 import com.jellypudding.simpleVote.SimpleVote;
 import com.jellypudding.simpleVote.TokenManager;
@@ -11,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,11 +24,13 @@ public final class OfflineStore extends JavaPlugin {
     private TokenManager tokenManager;
     private ChromaTag chromaTag;
     private ColorOwnershipManager colourOwnershipManager;
+    private MotdManager motdManager;
     private SimpleLifesteal simpleLifesteal;
     private SimpleHome simpleHome;
     private final Map<String, Integer> colourCosts = new HashMap<>();
     private int heartCost;
     private final Map<Integer, Integer> homeSlotCosts = new TreeMap<>();
+    private final Map<String, Integer> motdCosts = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -34,6 +39,7 @@ public final class OfflineStore extends JavaPlugin {
 
         // Initialise data managers
         this.colourOwnershipManager = new ColorOwnershipManager(this);
+        this.motdManager = new MotdManager(this);
 
         // Hook into SimpleVote
         Plugin simpleVotePlugin = Bukkit.getPluginManager().getPlugin("SimpleVote");
@@ -83,6 +89,9 @@ public final class OfflineStore extends JavaPlugin {
         getCommand("shop").setExecutor(shopCommand);
         getCommand("shop").setTabCompleter(shopCommand);
 
+        // Register listeners
+        getServer().getPluginManager().registerEvents(new ServerListPingListener(this), this);
+
         getLogger().info("OfflineStore has been enabled!");
     }
 
@@ -91,6 +100,9 @@ public final class OfflineStore extends JavaPlugin {
         // Plugin shutdown logic
         if (colourOwnershipManager != null) {
             colourOwnershipManager.closeConnection();
+        }
+        if (motdManager != null) {
+            motdManager.closeConnection();
         }
         getLogger().info("OfflineStore has been disabled.");
     }
@@ -145,6 +157,32 @@ public final class OfflineStore extends JavaPlugin {
         } else {
             getLogger().warning("Could not find 'home_slot_costs' section in config.yml. Home slot purchasing will be unavailable.");
         }
+
+        // Load MOTD costs
+        ConfigurationSection motdCostsSection = getConfig().getConfigurationSection("motd_costs");
+        if (motdCostsSection != null) {
+            motdCosts.clear();
+            for (String key : motdCostsSection.getKeys(false)) {
+                int cost = motdCostsSection.getInt(key, -1);
+                if (cost >= 0) {
+                    motdCosts.put(key.toLowerCase(), cost);
+                } else {
+                    getLogger().warning("Invalid cost for MOTD duration '" + key + "' in config.yml. Skipping.");
+                }
+            }
+            getLogger().info("Loaded " + motdCosts.size() + " MOTD duration costs from config.yml");
+        } else {
+            getLogger().warning("Could not find 'motd_costs' section in config.yml. MOTD purchasing will be unavailable.");
+        }
+
+        if (motdManager != null) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    motdManager.cleanupExpiredMotds();
+                }
+            }.runTaskTimerAsynchronously(this, 1200L, 72000L);
+        }
     }
 
     public TokenManager getTokenManager() {
@@ -177,5 +215,13 @@ public final class OfflineStore extends JavaPlugin {
 
     public Map<Integer, Integer> getHomeSlotCosts() {
         return homeSlotCosts;
+    }
+
+    public MotdManager getMotdManager() {
+        return motdManager;
+    }
+
+    public Map<String, Integer> getMotdCosts() {
+        return motdCosts;
     }
 }
