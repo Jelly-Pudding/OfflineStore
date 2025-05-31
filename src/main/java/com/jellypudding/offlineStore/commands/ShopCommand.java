@@ -3,6 +3,7 @@ package com.jellypudding.offlineStore.commands;
 import com.jellypudding.chromaTag.ChromaTag;
 import com.jellypudding.offlineStore.OfflineStore;
 import com.jellypudding.offlineStore.data.ColorOwnershipManager;
+import com.jellypudding.offlineStore.data.MotdManager;
 import com.jellypudding.simpleLifesteal.SimpleLifesteal;
 import com.jellypudding.simpleLifesteal.managers.PlayerDataManager;
 import com.jellypudding.simpleVote.TokenManager;
@@ -48,11 +49,18 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         NAMED_COLOURS.put("white", "#FFFFFF");
     }
 
-    private static final List<String> CATEGORIES = List.of("colour", "heart", "home");
+    private static final List<String> CATEGORIES = List.of("colour", "heart", "home", "motd");
     private static final Map<String, List<String>> CATEGORY_ACTIONS = Map.of(
             "colour", List.of("list", "buy", "set", "reset"),
             "heart", List.of("info", "buy"),
-            "home", List.of("info", "buy")
+            "home", List.of("info", "buy"),
+            "motd", List.of("list", "buy", "confirm", "my")
+    );
+
+    private static final Map<String, Integer> DURATION_HOURS = Map.of(
+            "day", 24,
+            "week", 168,
+            "month", 744
     );
 
     public ShopCommand(OfflineStore plugin) {
@@ -85,6 +93,8 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
             handleHeartCommand(player, args);
         } else if (category.equals("home")) {
             handleHomeCommand(player, args);
+        } else if (category.equals("motd")) {
+            handleMotdCommand(player, args);
         } else {
             player.sendMessage(Component.text("Category '" + category + "' not yet implemented.").color(NamedTextColor.YELLOW));
         }
@@ -190,6 +200,55 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
                  player.sendMessage(Component.text("Unknown action for home category: " + action).color(NamedTextColor.RED));
                  sendHomeUsage(player);
                  break;
+        }
+    }
+
+    private void handleMotdCommand(Player player, String[] args) {
+        MotdManager motdManager = plugin.getMotdManager();
+        TokenManager tokenManager = plugin.getTokenManager();
+
+        if (motdManager == null) {
+            player.sendMessage(Component.text("Error: MOTD system is unavailable.").color(NamedTextColor.RED));
+            return;
+        }
+
+        if (tokenManager == null) {
+            player.sendMessage(Component.text("Error: Token system is unavailable.").color(NamedTextColor.RED));
+            return;
+        }
+
+        String action = (args.length > 1) ? args[1].toLowerCase() : "list";
+
+        switch (action) {
+            case "list":
+                showMotdList(player, motdManager, tokenManager);
+                break;
+            case "buy":
+                if (args.length < 4) {
+                    player.sendMessage(Component.text("Usage: /shop motd buy <duration> <message>").color(NamedTextColor.RED));
+                    player.sendMessage(Component.text("Durations: day, week, month").color(NamedTextColor.GRAY));
+                    return;
+                }
+                String duration = args[2].toLowerCase();
+                String message = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
+                showMotdBuyPreview(player, motdManager, tokenManager, duration, message);
+                break;
+            case "confirm":
+                if (args.length < 4) {
+                    player.sendMessage(Component.text("Invalid confirmation command.").color(NamedTextColor.RED));
+                    return;
+                }
+                String confirmDuration = args[2].toLowerCase();
+                String confirmMessage = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
+                buyMotd(player, motdManager, tokenManager, confirmDuration, confirmMessage);
+                break;
+            case "my":
+                showMyMotds(player, motdManager);
+                break;
+            default:
+                player.sendMessage(Component.text("Unknown action for MOTD category: " + action).color(NamedTextColor.RED));
+                sendMotdUsage(player);
+                break;
         }
     }
 
@@ -601,6 +660,201 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void showMotdList(Player player, MotdManager motdManager, TokenManager tokenManager) {
+        Map<String, Integer> costs = plugin.getMotdCosts();
+        int currentTokens = tokenManager.getTokens(player.getUniqueId());
+
+        player.sendMessage(Component.text("--- MOTD Shop ---").color(NamedTextColor.GOLD));
+        player.sendMessage(Component.text("Your tokens: " + currentTokens).color(NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("Purchase a custom MOTD message that appears in the server list.").color(NamedTextColor.GRAY));
+        player.sendMessage(Component.text("First line is always: §6MinecraftOffline.net §8- §cAnarchy Lifesteal Server").color(NamedTextColor.AQUA));
+        player.sendMessage(Component.text("You can customise the second line.").color(NamedTextColor.AQUA));
+        player.sendMessage(Component.empty());
+
+        for (Map.Entry<String, Integer> entry : costs.entrySet()) {
+            String durationKey = entry.getKey();
+            int cost = entry.getValue();
+            Integer hours = DURATION_HOURS.get(durationKey);
+            
+            if (hours == null) continue;
+
+            String durationDisplay = switch (durationKey) {
+                case "day" -> "1 Day";
+                case "week" -> "1 Week"; 
+                case "month" -> "1 Month";
+                default -> durationKey;
+            };
+
+            TextComponent.Builder message = Component.text();
+            message.append(Component.text("  - ").color(NamedTextColor.GRAY));
+            message.append(Component.text(durationDisplay).color(NamedTextColor.GREEN));
+            message.append(Component.text(": " + cost + " tokens").color(NamedTextColor.AQUA));
+
+            if (currentTokens < cost) {
+                message.append(Component.text(" (Insufficient Funds)").color(NamedTextColor.RED));
+                message.hoverEvent(HoverEvent.showText(Component.text("Requires " + cost + " tokens.").color(NamedTextColor.RED)));
+            } else {
+                message.hoverEvent(HoverEvent.showText(Component.text("Click to start buying MOTD for " + durationDisplay).color(NamedTextColor.GREEN)));
+                message.clickEvent(ClickEvent.suggestCommand("/shop motd buy " + durationKey + " "));
+            }
+
+            player.sendMessage(message.build());
+        }
+
+        player.sendMessage(Component.empty());
+        player.sendMessage(Component.text("Use ").color(NamedTextColor.GRAY)
+                .append(Component.text("/shop motd my", NamedTextColor.YELLOW)
+                        .clickEvent(ClickEvent.runCommand("/shop motd my")))
+                .append(Component.text(" to see your active MOTDs.")));
+        player.sendMessage(Component.text("Colours: Use & for colours (e.g., &cRed &aGreen)").color(NamedTextColor.GRAY));
+        player.sendMessage(Component.text("-----------------").color(NamedTextColor.GOLD));
+    }
+
+    private void showMotdBuyPreview(Player player, MotdManager motdManager, TokenManager tokenManager, String duration, String message) {
+        Map<String, Integer> costs = plugin.getMotdCosts();
+        
+        if (!costs.containsKey(duration)) {
+            player.sendMessage(Component.text("Invalid duration! Use: day, week, or month").color(NamedTextColor.RED));
+            return;
+        }
+
+        if (!motdManager.isValidMotdMessage(message)) {
+            player.sendMessage(Component.text("Invalid MOTD message! ").color(NamedTextColor.RED));
+            player.sendMessage(Component.text("• Must be 1-100 characters").color(NamedTextColor.GRAY));
+            player.sendMessage(Component.text("• Only letters, numbers, spaces, basic punctuation, and colour codes allowed").color(NamedTextColor.GRAY));
+            return;
+        }
+
+        int cost = costs.get(duration);
+        Integer hours = DURATION_HOURS.get(duration);
+        
+        if (hours == null) {
+            player.sendMessage(Component.text("Invalid duration configuration.").color(NamedTextColor.RED));
+            return;
+        }
+
+        int currentTokens = tokenManager.getTokens(player.getUniqueId());
+        String durationDisplay = switch (duration) {
+            case "day" -> "1 day";
+            case "week" -> "1 week";
+            case "month" -> "1 month";
+            default -> duration;
+        };
+
+        String preview = motdManager.getMotdPreview(message);
+        
+        player.sendMessage(Component.text("--- MOTD Purchase Preview ---").color(NamedTextColor.GOLD));
+        player.sendMessage(Component.text("Duration: " + durationDisplay + " (" + cost + " tokens)").color(NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("Your tokens: " + currentTokens).color(NamedTextColor.YELLOW));
+        player.sendMessage(Component.empty());
+        player.sendMessage(Component.text("Your MOTD will look like:").color(NamedTextColor.AQUA));
+        
+        // Convert \\n to actual line break for display
+        String[] lines = preview.split("\\\\n");
+        for (String line : lines) {
+            player.sendMessage(Component.text(line).color(NamedTextColor.WHITE));
+        }
+        
+        player.sendMessage(Component.empty());
+        
+        if (currentTokens < cost) {
+            player.sendMessage(Component.text("Not enough tokens. Need " + cost + ", have " + currentTokens + ".").color(NamedTextColor.RED));
+        } else {
+            player.sendMessage(Component.text("Click to confirm purchase: ")
+                    .color(NamedTextColor.GREEN)
+                    .append(Component.text("[CONFIRM PURCHASE]")
+                            .color(NamedTextColor.DARK_GREEN)
+                            .clickEvent(ClickEvent.runCommand("/shop motd confirm " + duration + " " + message))
+                            .hoverEvent(HoverEvent.showText(Component.text("Click to buy MOTD for " + durationDisplay + " (" + cost + " tokens)")))));
+        }
+        
+        player.sendMessage(Component.text("-----------------------------").color(NamedTextColor.GOLD));
+    }
+
+    private void buyMotd(Player player, MotdManager motdManager, TokenManager tokenManager, String duration, String message) {
+        Map<String, Integer> costs = plugin.getMotdCosts();
+        
+        if (!costs.containsKey(duration)) {
+            player.sendMessage(Component.text("Invalid duration! Use: day, week, or month").color(NamedTextColor.RED));
+            return;
+        }
+
+        if (!motdManager.isValidMotdMessage(message)) {
+            player.sendMessage(Component.text("Invalid MOTD message! ").color(NamedTextColor.RED));
+            player.sendMessage(Component.text("• Must be 1-100 characters").color(NamedTextColor.GRAY));
+            player.sendMessage(Component.text("• Only letters, numbers, spaces, basic punctuation, and colour codes allowed").color(NamedTextColor.GRAY));
+            return;
+        }
+
+        int cost = costs.get(duration);
+        Integer hours = DURATION_HOURS.get(duration);
+        
+        if (hours == null) {
+            player.sendMessage(Component.text("Invalid duration configuration.").color(NamedTextColor.RED));
+            return;
+        }
+
+        int currentTokens = tokenManager.getTokens(player.getUniqueId());
+        if (currentTokens < cost) {
+            player.sendMessage(Component.text("You don't have enough tokens. Need " + cost + ", have " + currentTokens + ".").color(NamedTextColor.RED));
+            return;
+        }
+
+        if (tokenManager.removeTokens(player.getUniqueId(), cost)) {
+            boolean success = motdManager.addMotdPurchase(player.getUniqueId(), player.getName(), message, hours);
+            
+            if (success) {
+                String durationDisplay = switch (duration) {
+                    case "day" -> "1 day";
+                    case "week" -> "1 week";
+                    case "month" -> "1 month";
+                    default -> duration;
+                };
+                
+                player.sendMessage(Component.text("Successfully purchased MOTD for " + durationDisplay + "!").color(NamedTextColor.GREEN));
+                player.sendMessage(Component.text("Your message: ").color(NamedTextColor.YELLOW)
+                        .append(Component.text(motdManager.convertColorCodes(message))));
+                player.sendMessage(Component.text("It will be randomly shown when players refresh the server list.").color(NamedTextColor.GRAY));
+            } else {
+                tokenManager.addTokens(player.getUniqueId(), cost);
+                player.sendMessage(Component.text("Failed to purchase MOTD. Tokens refunded.").color(NamedTextColor.RED));
+                plugin.getLogger().warning("Failed to add MOTD purchase for " + player.getName() + " after tokens were removed. Refunding.");
+            }
+        } else {
+            player.sendMessage(Component.text("Failed to process token transaction.").color(NamedTextColor.RED));
+        }
+    }
+
+    private void showMyMotds(Player player, MotdManager motdManager) {
+        List<MotdManager.MotdInfo> playerMotds = motdManager.getPlayerActiveMotds(player.getUniqueId());
+        
+        player.sendMessage(Component.text("--- Your Active MOTDs ---").color(NamedTextColor.GOLD));
+        
+        if (playerMotds.isEmpty()) {
+            player.sendMessage(Component.text("You don't have any active MOTDs.").color(NamedTextColor.YELLOW));
+            player.sendMessage(Component.text("Use ").color(NamedTextColor.GRAY)
+                    .append(Component.text("/shop motd list", NamedTextColor.YELLOW)
+                            .clickEvent(ClickEvent.runCommand("/shop motd list")))
+                    .append(Component.text(" to purchase one!")));
+        } else {
+            for (MotdManager.MotdInfo info : playerMotds) {
+                player.sendMessage(Component.text("• ").color(NamedTextColor.GRAY)
+                        .append(Component.text(info.getMessage()))
+                        .append(Component.text(" (expires in " + info.getTimeUntilExpiryFormatted() + ")").color(NamedTextColor.GRAY)));
+            }
+        }
+        
+        player.sendMessage(Component.text("------------------------").color(NamedTextColor.GOLD));
+    }
+
+    private void sendMotdUsage(Player player) {
+        player.sendMessage(Component.text("MOTD Shop Usage:").color(NamedTextColor.GOLD));
+        player.sendMessage(Component.text(" /shop motd list").color(NamedTextColor.YELLOW));
+        player.sendMessage(Component.text(" /shop motd buy <duration> <message>").color(NamedTextColor.YELLOW)
+                .append(Component.text(" - Shows preview & confirmation").color(NamedTextColor.GRAY)));
+        player.sendMessage(Component.text(" /shop motd my").color(NamedTextColor.YELLOW));
+    }
+
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
@@ -668,6 +922,15 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
                  return Collections.emptyList();
             } else if (category.equals("home")) {
                 return Collections.emptyList();
+            } else if (category.equals("motd")) {
+                if (action.equals("buy")) {
+                    for (String duration : DURATION_HOURS.keySet()) {
+                        if (duration.startsWith(currentArg)) {
+                            completions.add(duration);
+                        }
+                    }
+                }
+                return completions;
             }
         }
 
