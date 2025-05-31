@@ -100,7 +100,7 @@ public class MotdManager {
 
     public String getMotdPreview(String secondLine) {
         String convertedSecondLine = convertColorCodes(secondLine);
-        return FIRST_LINE + "\\n" + convertedSecondLine;
+        return FIRST_LINE + "\n" + convertedSecondLine;
     }
 
     public boolean addMotdPurchase(UUID playerUuid, String playerName, String motdMessage, int durationHours) {
@@ -153,11 +153,11 @@ public class MotdManager {
     public String getRandomMotd() {
         List<String> activeMotds = getActiveMotds();
         if (activeMotds.isEmpty()) {
-            return FIRST_LINE + "\\n" + DEFAULT_SECOND_LINE;
+            return FIRST_LINE + "\n" + DEFAULT_SECOND_LINE;
         }
 
         String selectedSecondLine = activeMotds.get(random.nextInt(activeMotds.size()));
-        return FIRST_LINE + "\\n" + selectedSecondLine;
+        return FIRST_LINE + "\n" + selectedSecondLine;
     }
 
     public void cleanupExpiredMotds() {
