@@ -1,0 +1,1 @@
+Plugin for MinecraftOffline's shop. Also handles the /help and /rules commands.

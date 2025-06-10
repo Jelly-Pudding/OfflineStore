@@ -2,6 +2,8 @@ package com.jellypudding.offlineStore;
 
 import com.jellypudding.chromaTag.ChromaTag;
 import com.jellypudding.offlineStore.commands.ShopCommand;
+import com.jellypudding.offlineStore.commands.RulesCommand;
+import com.jellypudding.offlineStore.commands.HelpCommand;
 import com.jellypudding.offlineStore.data.ColorOwnershipManager;
 import com.jellypudding.offlineStore.data.MotdManager;
 import com.jellypudding.offlineStore.listeners.ServerListPingListener;
@@ -88,6 +90,13 @@ public final class OfflineStore extends JavaPlugin {
         ShopCommand shopCommand = new ShopCommand(this);
         getCommand("shop").setExecutor(shopCommand);
         getCommand("shop").setTabCompleter(shopCommand);
+        
+        // Register help and rules commands
+        RulesCommand rulesCommand = new RulesCommand(this);
+        getCommand("rules").setExecutor(rulesCommand);
+        
+        HelpCommand helpCommand = new HelpCommand(this);
+        getCommand("help").setExecutor(helpCommand);
 
         // Register listeners
         getServer().getPluginManager().registerEvents(new ServerListPingListener(this), this);

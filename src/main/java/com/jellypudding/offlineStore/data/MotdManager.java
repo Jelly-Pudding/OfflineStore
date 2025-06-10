@@ -36,7 +36,7 @@ public class MotdManager {
         try {
             Class.forName("org.sqlite.JDBC");
             this.connection = DriverManager.getConnection(databaseUrl);
-            initializeDatabase();
+            initialiseDatabase();
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to connect to SQLite database for MOTDs: " + e.getMessage(), e);
         } catch (ClassNotFoundException e) {
@@ -44,7 +44,7 @@ public class MotdManager {
         }
     }
 
-    private void initializeDatabase() throws SQLException {
+    private void initialiseDatabase() throws SQLException {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS motd_purchases (" +
                               "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -59,7 +59,7 @@ public class MotdManager {
             // Create index for faster queries
             statement.execute("CREATE INDEX IF NOT EXISTS idx_motd_active_expiry ON motd_purchases(is_active, expiry_time);");
             
-            plugin.getLogger().info("Database table 'motd_purchases' initialized successfully.");
+            plugin.getLogger().info("Database table 'motd_purchases' initialised successfully.");
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Could not create 'motd_purchases' database table: " + e.getMessage(), e);
             throw e;
