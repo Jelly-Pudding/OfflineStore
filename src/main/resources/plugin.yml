@@ -11,6 +11,14 @@ commands:
     description: Access the shop and buy hearts and name colours with tokens.
     usage: /shop <category> <action> [value] (e.g., /shop colour list)
     permission: offlinestore.use
+  rules:
+    description: Display the server rules.
+    usage: /rules
+    permission: offlinestore.use
+  help:
+    description: Display helpful information about server commands and features.
+    usage: /help
+    permission: offlinestore.use
 
 permissions:
   offlinestore.use:

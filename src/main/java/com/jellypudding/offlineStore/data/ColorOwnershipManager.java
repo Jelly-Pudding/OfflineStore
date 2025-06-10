@@ -27,7 +27,7 @@ public class ColorOwnershipManager {
         try {
             Class.forName("org.sqlite.JDBC");
             this.connection = DriverManager.getConnection(databaseUrl);
-            initializeDatabase();
+            initialiseDatabase();
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to connect to SQLite database for owned colours: " + e.getMessage(), e);
         } catch (ClassNotFoundException e) {
@@ -35,7 +35,7 @@ public class ColorOwnershipManager {
         }
     }
 
-    private void initializeDatabase() throws SQLException {
+    private void initialiseDatabase() throws SQLException {
         // Use try-with-resources for automatic closing of the statement
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS player_owned_colors (" +
