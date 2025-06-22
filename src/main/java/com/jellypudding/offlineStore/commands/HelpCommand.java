@@ -21,7 +21,12 @@ public class HelpCommand implements CommandExecutor {
         @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.text("--- HELP ---").color(NamedTextColor.GOLD));
+        sender.sendMessage(Component.text("═══════════════════════════").color(NamedTextColor.GOLD));
+        sender.sendMessage(Component.text("      HELP & COMMANDS").color(NamedTextColor.GOLD));
+        sender.sendMessage(Component.text("═══════════════════════════").color(NamedTextColor.GOLD));
+        sender.sendMessage(Component.empty());
+        
+        sender.sendMessage(Component.text("Available Commands:").color(NamedTextColor.AQUA));
         sender.sendMessage(Component.empty());
         
         sender.sendMessage(Component.text("• Home commands: ").color(NamedTextColor.WHITE)
@@ -44,15 +49,19 @@ public class HelpCommand implements CommandExecutor {
                 .append(Component.text("/vote").color(NamedTextColor.GREEN)));
         
         sender.sendMessage(Component.empty());
+        sender.sendMessage(Component.text("Links:").color(NamedTextColor.AQUA));
+        sender.sendMessage(Component.empty());
         
-        Component discordLink = Component.text("Click Here to Join Our Discord Server")
+        Component discordLink = Component.text("🔗 Click Here to Join Our Discord Server")
                 .color(NamedTextColor.LIGHT_PURPLE)
                 .decorate(TextDecoration.UNDERLINED)
                 .clickEvent(ClickEvent.openUrl("https://discord.gg/a83FESY3jF"))
                 .hoverEvent(HoverEvent.showText(Component.text("Click to open Discord invite").color(NamedTextColor.YELLOW)));
         sender.sendMessage(discordLink);
         
-        Component websiteLink = Component.text("Visit Our Website")
+        sender.sendMessage(Component.empty());
+        
+        Component websiteLink = Component.text("🌐 Visit Our Website")
                 .color(NamedTextColor.GREEN)
                 .decorate(TextDecoration.UNDERLINED)
                 .clickEvent(ClickEvent.openUrl("https://www.minecraftoffline.net"))
@@ -60,7 +69,8 @@ public class HelpCommand implements CommandExecutor {
         sender.sendMessage(websiteLink);
         
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.text("------------").color(NamedTextColor.GOLD));
+        sender.sendMessage(Component.text("═══════════════════════════").color(NamedTextColor.GOLD));
+        sender.sendMessage(Component.empty());
         
         return true;
     }

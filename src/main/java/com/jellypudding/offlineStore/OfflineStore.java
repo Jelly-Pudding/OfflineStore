@@ -7,6 +7,7 @@ import com.jellypudding.offlineStore.commands.HelpCommand;
 import com.jellypudding.offlineStore.data.ColorOwnershipManager;
 import com.jellypudding.offlineStore.data.MotdManager;
 import com.jellypudding.offlineStore.listeners.ServerListPingListener;
+import com.jellypudding.offlineStore.listeners.PlayerJoinListener;
 import com.jellypudding.simpleLifesteal.SimpleLifesteal;
 import com.jellypudding.simpleVote.SimpleVote;
 import com.jellypudding.simpleVote.TokenManager;
@@ -100,6 +101,7 @@ public final class OfflineStore extends JavaPlugin {
 
         // Register listeners
         getServer().getPluginManager().registerEvents(new ServerListPingListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
 
         getLogger().info("OfflineStore has been enabled!");
     }
