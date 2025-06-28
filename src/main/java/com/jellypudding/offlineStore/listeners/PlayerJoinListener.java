@@ -51,8 +51,14 @@ public class PlayerJoinListener implements Listener {
                 .append(Component.text("ban").color(NamedTextColor.RED)));
         
         player.sendMessage(Component.text("• ").color(NamedTextColor.WHITE)
-                .append(Component.text("There is some anticheat to prevent extreme movements").color(NamedTextColor.WHITE)));
-        
+                .append(Component.text("A basic anticheat plugin prevents extreme movements").color(NamedTextColor.WHITE)));
+
+        player.sendMessage(Component.empty());
+
+        player.sendMessage(Component.text("Use ").color(NamedTextColor.WHITE)
+                .append(Component.text("/help").color(NamedTextColor.GREEN))
+                .append(Component.text(" for commands").color(NamedTextColor.WHITE)));
+
         player.sendMessage(Component.empty());
         
         // Discord link
@@ -62,11 +68,6 @@ public class PlayerJoinListener implements Listener {
                 .clickEvent(ClickEvent.openUrl("https://discord.gg/a83FESY3jF"))
                 .hoverEvent(HoverEvent.showText(Component.text("Click to join our Discord").color(NamedTextColor.YELLOW)));
         player.sendMessage(discordLink);
-        
-        player.sendMessage(Component.empty());
-        player.sendMessage(Component.text("Use ").color(NamedTextColor.WHITE)
-                .append(Component.text("/help").color(NamedTextColor.GREEN))
-                .append(Component.text(" for commands").color(NamedTextColor.WHITE)));
         
         player.sendMessage(Component.text("═══════════════════════════").color(NamedTextColor.GOLD));
     }

@@ -20,4 +20,4 @@ public class RulesCommand implements CommandExecutor {
         sender.sendMessage(Component.text("No rules. Just don't lose all your hearts.").color(NamedTextColor.YELLOW));
         return true;
     }
-} 
+}
