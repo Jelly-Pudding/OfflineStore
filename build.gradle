@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.jellypudding'
-version = '1.4'
+version = '1.5'
 
 repositories {
     mavenCentral()
@@ -19,13 +19,13 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.7-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
 
     // Dependencies for local plugins (needed for compilation/IDE)
-    compileOnly files('libs/SimpleVote-2.2.jar')
-    compileOnly files('libs/ChromaTag-1.2.1.jar')
-    compileOnly files('libs/SimpleLifesteal-1.4.jar')
-    compileOnly files('libs/SimpleHome-1.0.5.jar')    
+    compileOnly files('libs/SimpleVote-2.3.jar')
+    compileOnly files('libs/ChromaTag-1.2.2.jar')
+    compileOnly files('libs/SimpleLifesteal-1.5.jar')
+    compileOnly files('libs/SimpleHome-1.0.5.jar')
 }
 
 tasks {

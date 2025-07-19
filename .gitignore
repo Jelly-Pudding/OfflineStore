@@ -1,7 +1,7 @@
 # User-specific stuff
 .idea/
 .vscode/settings.json
-
+bin/
 *.iml
 *.ipr
 *.iws
