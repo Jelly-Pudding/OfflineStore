@@ -25,7 +25,7 @@ dependencies {
     compileOnly files('libs/SimpleVote-2.2.jar')
     compileOnly files('libs/ChromaTag-1.2.1.jar')
     compileOnly files('libs/SimpleLifesteal-1.4.jar')
-    compileOnly files('libs/SimpleHome-1.0.4.jar')    
+    compileOnly files('libs/SimpleHome-1.0.5.jar')    
 }
 
 tasks {
