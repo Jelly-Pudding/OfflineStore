@@ -4,6 +4,7 @@ import com.jellypudding.chromaTag.ChromaTag;
 import com.jellypudding.offlineStore.commands.ShopCommand;
 import com.jellypudding.offlineStore.commands.RulesCommand;
 import com.jellypudding.offlineStore.commands.HelpCommand;
+import com.jellypudding.offlineStore.commands.KillCommand;
 import com.jellypudding.offlineStore.data.ColorOwnershipManager;
 import com.jellypudding.offlineStore.data.MotdManager;
 import com.jellypudding.offlineStore.listeners.ServerListPingListener;
@@ -98,6 +99,10 @@ public final class OfflineStore extends JavaPlugin {
         
         HelpCommand helpCommand = new HelpCommand(this);
         getCommand("help").setExecutor(helpCommand);
+
+        // Register kill command
+        KillCommand killCommand = new KillCommand(this);
+        getCommand("kill").setExecutor(killCommand);
 
         // Register listeners
         getServer().getPluginManager().registerEvents(new ServerListPingListener(this), this);
