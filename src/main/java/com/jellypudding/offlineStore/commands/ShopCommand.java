@@ -7,7 +7,6 @@ import com.jellypudding.offlineStore.data.MotdManager;
 import com.jellypudding.simpleLifesteal.SimpleLifesteal;
 import com.jellypudding.simpleLifesteal.managers.PlayerDataManager;
 import com.jellypudding.simpleVote.TokenManager;
-import com.jellypudding.simpleHome.SimpleHome;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -49,11 +48,10 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         NAMED_COLOURS.put("white", "#FFFFFF");
     }
 
-    private static final List<String> CATEGORIES = List.of("colour", "heart", "home", "motd");
+    private static final List<String> CATEGORIES = List.of("colour", "heart", "motd");
     private static final Map<String, List<String>> CATEGORY_ACTIONS = Map.of(
             "colour", List.of("list", "buy", "set", "reset"),
             "heart", List.of("info", "buy"),
-            "home", List.of("info", "buy"),
             "motd", List.of("list", "buy", "confirm", "my")
     );
 
@@ -91,8 +89,6 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
             handleColourCommand(player, args);
         } else if (category.equals("heart")) {
             handleHeartCommand(player, args);
-        } else if (category.equals("home")) {
-            handleHomeCommand(player, args);
         } else if (category.equals("motd")) {
             handleMotdCommand(player, args);
         } else {
@@ -174,35 +170,6 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         }
     }
 
-    private void handleHomeCommand(Player player, String[] args) {
-        SimpleHome shApi = plugin.getSimpleHome();
-        TokenManager tokenManager = plugin.getTokenManager();
-
-        if (shApi == null) {
-            player.sendMessage(Component.text("Error: SimpleHome integration is disabled or not loaded.").color(NamedTextColor.RED));
-            return;
-        }
-         if (tokenManager == null) {
-            player.sendMessage(Component.text("Error: Token system is unavailable.").color(NamedTextColor.RED));
-            return;
-        }
-
-        String action = (args.length > 1) ? args[1].toLowerCase() : "info";
-
-        switch (action) {
-            case "buy":
-                buyHomeSlot(player, shApi, tokenManager);
-                break;
-            case "info":
-                showHomeInfo(player, shApi);
-                break;
-            default:
-                 player.sendMessage(Component.text("Unknown action for home category: " + action).color(NamedTextColor.RED));
-                 sendHomeUsage(player);
-                 break;
-        }
-    }
-
     private void handleMotdCommand(Player player, String[] args) {
         MotdManager motdManager = plugin.getMotdManager();
         TokenManager tokenManager = plugin.getTokenManager();
@@ -269,35 +236,6 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(Component.text("Heart Shop Usage:").color(NamedTextColor.GOLD));
         player.sendMessage(Component.text(" /shop heart info").color(NamedTextColor.YELLOW).append(Component.text(" - Show current/max hearts")));
         player.sendMessage(Component.text(" /shop heart buy").color(NamedTextColor.YELLOW).append(Component.text(" - Buy 1 heart for " + heartCost + " tokens")));
-    }
-
-    private void sendHomeUsage(Player player) {
-        SimpleHome shApi = plugin.getSimpleHome();
-        Map<Integer, Integer> homeCosts = plugin.getHomeSlotCosts();
-        if (shApi == null || homeCosts == null) {
-             player.sendMessage(Component.text("Home shop features are currently unavailable.").color(NamedTextColor.RED));
-             return;
-        }
-
-        int currentLimit = shApi.getHomeLimit(player.getUniqueId());
-        int maxLimit = 5;
-
-        player.sendMessage(Component.text("Home Slot Shop Usage:").color(NamedTextColor.GOLD));
-        player.sendMessage(Component.text(" /shop home info").color(NamedTextColor.YELLOW).append(Component.text(" - Show current/max homes")));
-
-        if (currentLimit < maxLimit) {
-            int nextSlot = currentLimit + 1;
-            Integer nextCost = homeCosts.get(nextSlot);
-            if (nextCost != null) {
-                player.sendMessage(Component.text(" /shop home buy").color(NamedTextColor.YELLOW)
-                         .append(Component.text(" - Buy slot #" + nextSlot + " for " + nextCost + " tokens")));
-            } else {
-                 player.sendMessage(Component.text(" /shop home buy").color(NamedTextColor.YELLOW)
-                         .append(Component.text(" - Next slot cost not configured.").color(NamedTextColor.GRAY)));
-            }
-        } else {
-             player.sendMessage(Component.text("You have reached the maximum home limit ("+ maxLimit +").").color(NamedTextColor.GREEN));
-        }
     }
 
     private TextColor getColourFromString(String colourString) {
@@ -581,85 +519,6 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
          }
      }
 
-    private void showHomeInfo(Player player, SimpleHome shApi) {
-        UUID playerUUID = player.getUniqueId();
-        int currentLimit = shApi.getHomeLimit(playerUUID);
-        int currentHomes = shApi.getCurrentHomeCount(playerUUID);
-        int maxLimit = 5;
-        Map<Integer, Integer> homeCosts = plugin.getHomeSlotCosts();
-
-        player.sendMessage(Component.text("--- Home Slot Info ---").color(NamedTextColor.GOLD));
-        player.sendMessage(Component.text("Homes Set: " + currentHomes + " / " + currentLimit).color(NamedTextColor.YELLOW));
-        player.sendMessage(Component.text("Max Possible Limit: " + maxLimit).color(NamedTextColor.YELLOW));
-
-        if (currentLimit < maxLimit) {
-            int nextSlot = currentLimit + 1;
-            Integer cost = homeCosts.get(nextSlot);
-            if (cost != null) {
-                player.sendMessage(Component.text("Next slot (#" + nextSlot + ") cost: " + cost + " tokens.").color(NamedTextColor.GREEN));
-                player.sendMessage(Component.text("Use ")
-                        .append(Component.text("/shop home buy", NamedTextColor.AQUA)
-                                .clickEvent(ClickEvent.suggestCommand("/shop home buy"))
-                                .hoverEvent(HoverEvent.showText(Component.text("Click to buy slot #" + nextSlot + " for " + cost + " tokens"))))
-                        .append(Component.text(" to purchase.")));
-            } else {
-                player.sendMessage(Component.text("Cost for the next home slot (#" + nextSlot + ") is not configured.").color(NamedTextColor.GRAY));
-            }
-        } else {
-            player.sendMessage(Component.text("You have reached the maximum home limit!").color(NamedTextColor.GREEN));
-        }
-        player.sendMessage(Component.text("---------------------").color(NamedTextColor.GOLD));
-    }
-
-    private void buyHomeSlot(Player player, SimpleHome shApi, TokenManager tokenManager) {
-        UUID playerUUID = player.getUniqueId();
-        int currentLimit = shApi.getHomeLimit(playerUUID);
-        int maxLimit = 5;
-        Map<Integer, Integer> homeCosts = plugin.getHomeSlotCosts();
-
-        if (currentLimit >= maxLimit) {
-            player.sendMessage(Component.text("You already have the maximum number of home slots (" + maxLimit + ").").color(NamedTextColor.RED));
-            return;
-        }
-
-        int nextSlot = currentLimit + 1;
-        Integer cost = homeCosts.get(nextSlot);
-
-        if (cost == null) {
-            player.sendMessage(Component.text("The cost for the next home slot (#" + nextSlot + ") is not configured. Please contact an admin.").color(NamedTextColor.RED));
-            plugin.getLogger().warning("Player " + player.getName() + " tried to buy home slot " + nextSlot + " but no cost was found in config.");
-            return;
-        }
-        if (cost < 0) {
-             player.sendMessage(Component.text("Invalid cost configured for home slot #" + nextSlot + ". Please contact an admin.").color(NamedTextColor.RED));
-            return;
-        }
-
-        int currentTokens = tokenManager.getTokens(playerUUID);
-        if (currentTokens < cost) {
-            player.sendMessage(Component.text("You don't have enough tokens! Need " + cost + ", have " + currentTokens + ".").color(NamedTextColor.RED));
-            return;
-        }
-
-        // Attempt transaction
-        if (tokenManager.removeTokens(playerUUID, cost)) {
-            boolean limitIncreased = shApi.increaseHomeLimit(playerUUID);
-
-            if (limitIncreased) {
-                int newLimit = shApi.getHomeLimit(playerUUID); // Re-fetch to confirm
-                player.sendMessage(Component.text("Purchased home slot #" + nextSlot + " for " + cost + " tokens! Your new home limit is " + newLimit + ".").color(NamedTextColor.GREEN));
-            } else {
-                // Refund tokens if increasing limit failed
-                tokenManager.addTokens(playerUUID, cost);
-                player.sendMessage(Component.text("Failed to increase home limit after purchase (perhaps you already reached the max?). Tokens refunded.").color(NamedTextColor.RED));
-                plugin.getLogger().warning("Failed to increase home limit for " + player.getName() + " via SimpleHome API after tokens were removed. Refunding.");
-            }
-        } else {
-            player.sendMessage(Component.text("Failed to process token transaction. Please try again.").color(NamedTextColor.RED));
-            plugin.getLogger().warning("Token removal failed for " + player.getName() + " attempting to buy home slot " + nextSlot);
-        }
-    }
-
     private void showMotdList(Player player, MotdManager motdManager, TokenManager tokenManager) {
         Map<String, Integer> costs = plugin.getMotdCosts();
         int currentTokens = tokenManager.getTokens(player.getUniqueId());
@@ -925,8 +784,6 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
                 return completions;
             } else if (category.equals("heart")) {
                  return Collections.emptyList();
-            } else if (category.equals("home")) {
-                return Collections.emptyList();
             } else if (category.equals("motd")) {
                 if (action.equals("buy")) {
                     String[] orderedDurations = {"day", "week", "month"};
@@ -942,4 +799,4 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
 
         return Collections.emptyList();
     }
-} 
+}

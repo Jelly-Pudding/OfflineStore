@@ -27,6 +27,9 @@ public class HelpCommand implements CommandExecutor {
 
         sender.sendMessage(Component.text("Available Commands:").color(NamedTextColor.AQUA));
 
+        sender.sendMessage(Component.text("• Spawn: ").color(NamedTextColor.WHITE)
+                .append(Component.text("/spawn").color(NamedTextColor.GREEN)));
+
         sender.sendMessage(Component.text("• Home commands: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/sethome").color(NamedTextColor.GREEN))
                 .append(Component.text(" and ").color(NamedTextColor.WHITE))
@@ -48,6 +51,22 @@ public class HelpCommand implements CommandExecutor {
 
         sender.sendMessage(Component.text("• Vote to skip the day: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/goodnight").color(NamedTextColor.GREEN)));
+
+        sender.sendMessage(Component.text("• Player stats: ").color(NamedTextColor.WHITE)
+                .append(Component.text("/firstseen").color(NamedTextColor.GREEN))
+                .append(Component.text(", ").color(NamedTextColor.WHITE))
+                .append(Component.text("/lastseen").color(NamedTextColor.GREEN))
+                .append(Component.text(", ").color(NamedTextColor.WHITE))
+                .append(Component.text("/timeplayed").color(NamedTextColor.GREEN))
+                .append(Component.text(", ").color(NamedTextColor.WHITE))
+                .append(Component.text("/kills").color(NamedTextColor.GREEN))
+                .append(Component.text(", ").color(NamedTextColor.WHITE))
+                .append(Component.text("/deaths").color(NamedTextColor.GREEN))
+                .append(Component.text(", ").color(NamedTextColor.WHITE))
+                .append(Component.text("/chatter").color(NamedTextColor.GREEN)));
+
+        sender.sendMessage(Component.text("• Kill yourself: ").color(NamedTextColor.WHITE)
+                .append(Component.text("/kill").color(NamedTextColor.GREEN)));
 
         sender.sendMessage(Component.text("• Shop to buy hearts and cosmetics with tokens: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/shop").color(NamedTextColor.GREEN)));
@@ -74,9 +93,7 @@ public class HelpCommand implements CommandExecutor {
                 .hoverEvent(HoverEvent.showText(Component.text("Click to open website").color(NamedTextColor.YELLOW)));
         sender.sendMessage(websiteLink);
 
-        sender.sendMessage(Component.empty());
         sender.sendMessage(Component.text("═════════").color(NamedTextColor.GOLD));
-        sender.sendMessage(Component.empty());
 
         return true;
     }

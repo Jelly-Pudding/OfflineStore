@@ -51,7 +51,7 @@ public class PlayerJoinListener implements Listener {
                 .append(Component.text("ban").color(NamedTextColor.RED)));
         
         player.sendMessage(Component.text("• ").color(NamedTextColor.WHITE)
-                .append(Component.text("A basic anticheat plugin prevents extreme movements").color(NamedTextColor.WHITE)));
+                .append(Component.text("A lenient anticheat plugin prevents extreme movements").color(NamedTextColor.WHITE)));
 
         player.sendMessage(Component.empty());
 

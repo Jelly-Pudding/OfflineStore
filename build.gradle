@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.jellypudding'
-version = '1.6'
+version = '1.7'
 
 repositories {
     mavenCentral()
@@ -25,7 +25,6 @@ dependencies {
     compileOnly files('libs/SimpleVote-2.3.jar')
     compileOnly files('libs/ChromaTag-1.2.2.jar')
     compileOnly files('libs/SimpleLifesteal-1.6.jar')
-    compileOnly files('libs/SimpleHome-1.0.6.jar')
 }
 
 tasks {
