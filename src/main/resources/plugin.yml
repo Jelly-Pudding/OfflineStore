@@ -24,6 +24,10 @@ commands:
     description: Kill yourself.
     usage: /kill
     permission: offlinestore.use
+  donate:
+    description: Support the server and buy tokens.
+    usage: /donate
+    permission: offlinestore.use
 
 permissions:
   offlinestore.use:

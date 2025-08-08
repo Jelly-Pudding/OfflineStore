@@ -4,6 +4,7 @@ import com.jellypudding.chromaTag.ChromaTag;
 import com.jellypudding.offlineStore.commands.ShopCommand;
 import com.jellypudding.offlineStore.commands.RulesCommand;
 import com.jellypudding.offlineStore.commands.HelpCommand;
+import com.jellypudding.offlineStore.commands.DonateCommand;
 import com.jellypudding.offlineStore.commands.KillCommand;
 import com.jellypudding.offlineStore.data.ColorOwnershipManager;
 import com.jellypudding.offlineStore.data.MotdManager;
@@ -84,6 +85,10 @@ public final class OfflineStore extends JavaPlugin {
         
         HelpCommand helpCommand = new HelpCommand(this);
         getCommand("help").setExecutor(helpCommand);
+
+        // Register donate command
+        DonateCommand donateCommand = new DonateCommand(this);
+        getCommand("donate").setExecutor(donateCommand);
 
         // Register kill command
         KillCommand killCommand = new KillCommand(this);
