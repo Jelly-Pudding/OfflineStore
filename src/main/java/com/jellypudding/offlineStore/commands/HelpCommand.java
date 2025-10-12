@@ -45,8 +45,10 @@ public class HelpCommand implements CommandExecutor {
 
         sender.sendMessage(Component.text("• LifeSteal commands: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/hearts").color(NamedTextColor.GREEN))
+                .append(Component.text(", ").color(NamedTextColor.WHITE))
+                .append(Component.text("/withdrawheart").color(NamedTextColor.GREEN))
                 .append(Component.text(" and ").color(NamedTextColor.WHITE))
-                .append(Component.text("/withdrawheart").color(NamedTextColor.GREEN)));
+                .append(Component.text("/heartrecipe").color(NamedTextColor.GREEN)));
 
         sender.sendMessage(Component.text("• Vote to skip the day: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/goodnight").color(NamedTextColor.GREEN)));
@@ -62,7 +64,9 @@ public class HelpCommand implements CommandExecutor {
                 .append(Component.text(", ").color(NamedTextColor.WHITE))
                 .append(Component.text("/deaths").color(NamedTextColor.GREEN))
                 .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/chatter").color(NamedTextColor.GREEN)));
+                .append(Component.text("/chatter").color(NamedTextColor.GREEN))
+                .append(Component.text(", ").color(NamedTextColor.WHITE))
+                .append(Component.text("/leaderboard").color(NamedTextColor.GREEN)));
 
         sender.sendMessage(Component.text("• Kill yourself: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/kill").color(NamedTextColor.GREEN)));
