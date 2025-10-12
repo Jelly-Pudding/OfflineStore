@@ -22,7 +22,6 @@ public class HelpCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         sender.sendMessage(Component.text("═════════").color(NamedTextColor.GOLD));
         sender.sendMessage(Component.text("       Help").color(NamedTextColor.GOLD));
-        sender.sendMessage(Component.empty());
 
         sender.sendMessage(Component.text("Available Commands:").color(NamedTextColor.AQUA));
 
