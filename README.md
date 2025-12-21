@@ -1,1 +1,1 @@
-Plugin for MinecraftOffline's shop. Also handles the /help, /rules, /kill and /donate commands.
+Plugin for MinecraftOffline's shop. Also handles the /help, /rules, /kill, /donate, and /plugins commands.

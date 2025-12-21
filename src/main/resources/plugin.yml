@@ -1,5 +1,5 @@
 name: OfflineStore
-version: '1.9'
+version: '1.10'
 main: com.jellypudding.offlineStore.OfflineStore
 api-version: '1.21'
 description: A small shop plugin for MinecraftOffline
@@ -27,6 +27,11 @@ commands:
   donate:
     description: Support the server and buy tokens.
     usage: /donate
+    permission: offlinestore.use
+  plugins:
+    description: View information about server plugins.
+    usage: /plugins
+    aliases: [pl, plugin]
     permission: offlinestore.use
 
 permissions:

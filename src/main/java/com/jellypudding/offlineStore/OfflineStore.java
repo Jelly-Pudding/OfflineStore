@@ -6,6 +6,7 @@ import com.jellypudding.offlineStore.commands.RulesCommand;
 import com.jellypudding.offlineStore.commands.HelpCommand;
 import com.jellypudding.offlineStore.commands.DonateCommand;
 import com.jellypudding.offlineStore.commands.KillCommand;
+import com.jellypudding.offlineStore.commands.PluginsCommand;
 import com.jellypudding.offlineStore.data.ColorOwnershipManager;
 import com.jellypudding.offlineStore.data.MotdManager;
 import com.jellypudding.offlineStore.listeners.ServerListPingListener;
@@ -92,6 +93,10 @@ public final class OfflineStore extends JavaPlugin {
         // Register kill command
         KillCommand killCommand = new KillCommand(this);
         getCommand("kill").setExecutor(killCommand);
+
+        // Register plugins command
+        PluginsCommand pluginsCommand = new PluginsCommand(this);
+        getCommand("plugins").setExecutor(pluginsCommand);
 
         // Register listeners
         getServer().getPluginManager().registerEvents(new ServerListPingListener(this), this);

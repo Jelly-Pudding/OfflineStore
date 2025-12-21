@@ -1,18 +1,18 @@
 # Default costs for each colour in the shop.
 colour_costs:
-  black: 10000
-  dark_blue: 1500
-  dark_green: 1000
-  dark_aqua: 1500
-  dark_red: 1500
-  dark_purple: 1500
-  gold: 3000
+  black: 100000
+  dark_blue: 5000
+  dark_green: 5000
+  dark_aqua: 5000
+  dark_red: 5000
+  dark_purple: 5000
+  gold: 5000
   gray: 500
   dark_gray: 750
-  blue: 1000
-  green: 1000
-  aqua: 1500
-  light_purple: 2500
+  blue: 3000
+  green: 3000
+  aqua: 7500
+  light_purple: 10000
   yellow: 1000
   white: 0
 

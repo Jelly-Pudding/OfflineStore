@@ -38,13 +38,11 @@ public class HelpCommand implements CommandExecutor {
                 .append(Component.text(", ").color(NamedTextColor.WHITE))
                 .append(Component.text("/tpaccept").color(NamedTextColor.GREEN))
                 .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/tpdeny").color(NamedTextColor.GREEN))
+                .append(Component.text("/tpdeny").color(NamedTextColor.RED))
                 .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/tpacancel").color(NamedTextColor.GREEN)));
+                .append(Component.text("/tpacancel").color(NamedTextColor.RED)));
 
         sender.sendMessage(Component.text("• LifeSteal commands: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/hearts").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
                 .append(Component.text("/withdrawheart").color(NamedTextColor.GREEN))
                 .append(Component.text(" and ").color(NamedTextColor.WHITE))
                 .append(Component.text("/heartrecipe").color(NamedTextColor.GREEN)));
@@ -65,12 +63,19 @@ public class HelpCommand implements CommandExecutor {
                 .append(Component.text(", ").color(NamedTextColor.WHITE))
                 .append(Component.text("/chatter").color(NamedTextColor.GREEN))
                 .append(Component.text(", ").color(NamedTextColor.WHITE))
+                .append(Component.text("/rep").color(NamedTextColor.GREEN))
+                .append(Component.text(", ").color(NamedTextColor.WHITE))
                 .append(Component.text("/leaderboard").color(NamedTextColor.GREEN)));
 
-        sender.sendMessage(Component.text("• Kill yourself: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/kill").color(NamedTextColor.GREEN)));
+        sender.sendMessage(Component.text("• Give reputation: ").color(NamedTextColor.WHITE)
+                .append(Component.text("/goodrep <player>").color(NamedTextColor.GREEN))
+                .append(Component.text(" or ").color(NamedTextColor.WHITE))
+                .append(Component.text("/badrep <player>").color(NamedTextColor.RED)));
 
-        sender.sendMessage(Component.text("• Shop to buy hearts and cosmetics with tokens: ").color(NamedTextColor.WHITE)
+        sender.sendMessage(Component.text("• Kill yourself: ").color(NamedTextColor.WHITE)
+                .append(Component.text("/kill").color(NamedTextColor.RED)));
+
+        sender.sendMessage(Component.text("• Shop to buy hearts, coloured names and custom MOTDS with tokens: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/shop").color(NamedTextColor.GREEN)));
 
         sender.sendMessage(Component.text("• Get tokens by voting: ").color(NamedTextColor.WHITE)
