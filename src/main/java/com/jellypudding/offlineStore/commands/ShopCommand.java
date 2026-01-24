@@ -482,42 +482,47 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         });
     }
 
-     private void buyHeart(Player player, SimpleLifesteal slApi, TokenManager tokenManager, int heartCost) {
-         PlayerDataManager playerDataManager = slApi.getPlayerDataManager();
-         if (playerDataManager == null) {
-             player.sendMessage(Component.text("Error: Could not access PlayerDataManager.").color(NamedTextColor.RED));
-             return;
-         }
+    private void buyHeart(Player player, SimpleLifesteal slApi, TokenManager tokenManager, int heartCost) {
+        PlayerDataManager playerDataManager = slApi.getPlayerDataManager();
+        if (playerDataManager == null) {
+            player.sendMessage(Component.text("Error: Could not access PlayerDataManager.").color(NamedTextColor.RED));
+            return;
+        }
 
-         int currentHearts = playerDataManager.getPlayerHearts(player.getUniqueId());
-         int maxHearts = slApi.getMaxHearts();
+        if (slApi.isPlayerInGracePeriod(player.getUniqueId())) {
+            player.sendMessage(Component.text("You cannot buy hearts while in your grace period.").color(NamedTextColor.RED));
+            return;
+        }
 
-         if (currentHearts >= maxHearts) {
-             player.sendMessage(Component.text("You are already at the maximum number of hearts (" + maxHearts + ").").color(NamedTextColor.RED));
-             return;
-         }
+        int currentHearts = playerDataManager.getPlayerHearts(player.getUniqueId());
+        int maxHearts = slApi.getMaxHearts();
 
-         int currentTokens = tokenManager.getTokens(player.getUniqueId());
-         if (currentTokens < heartCost) {
-             player.sendMessage(Component.text("You don't have enough tokens! Need " + heartCost + ", have " + currentTokens + ".").color(NamedTextColor.RED));
-             return;
-         }
+        if (currentHearts >= maxHearts) {
+            player.sendMessage(Component.text("You are already at the maximum number of hearts (" + maxHearts + ").").color(NamedTextColor.RED));
+            return;
+        }
 
-         if (tokenManager.removeTokens(player.getUniqueId(), heartCost)) {
-             boolean heartAdded = slApi.addHearts(player.getUniqueId(), 1);
+        int currentTokens = tokenManager.getTokens(player.getUniqueId());
+        if (currentTokens < heartCost) {
+            player.sendMessage(Component.text("You don't have enough tokens! Need " + heartCost + ", have " + currentTokens + ".").color(NamedTextColor.RED));
+            return;
+        }
 
-             if (heartAdded) {
-                 int newHearts = playerDataManager.getPlayerHearts(player.getUniqueId());
-                 player.sendMessage(Component.text("Purchased 1 heart for " + heartCost + " tokens! You now have " + newHearts + " hearts.").color(NamedTextColor.GREEN));
-             } else {
-                 tokenManager.addTokens(player.getUniqueId(), heartCost);
-                 player.sendMessage(Component.text("Failed to add heart after purchase (perhaps already at max?). Tokens refunded.").color(NamedTextColor.RED));
-                 plugin.getLogger().warning("Failed to add heart for " + player.getName() + " via SimpleLifesteal API after tokens were removed. Refunding.");
-             }
-         } else {
-             player.sendMessage(Component.text("Failed to process token transaction.").color(NamedTextColor.RED));
-         }
-     }
+        if (tokenManager.removeTokens(player.getUniqueId(), heartCost)) {
+            boolean heartAdded = slApi.addHearts(player.getUniqueId(), 1);
+
+            if (heartAdded) {
+                int newHearts = playerDataManager.getPlayerHearts(player.getUniqueId());
+                player.sendMessage(Component.text("Purchased 1 heart for " + heartCost + " tokens! You now have " + newHearts + " hearts.").color(NamedTextColor.GREEN));
+            } else {
+                tokenManager.addTokens(player.getUniqueId(), heartCost);
+                player.sendMessage(Component.text("Failed to add heart after purchase (perhaps already at max?). Tokens refunded.").color(NamedTextColor.RED));
+                plugin.getLogger().warning("Failed to add heart for " + player.getName() + " via SimpleLifesteal API after tokens were removed. Refunding.");
+            }
+        } else {
+            player.sendMessage(Component.text("Failed to process token transaction.").color(NamedTextColor.RED));
+        }
+    }
 
     private void showMotdList(Player player, MotdManager motdManager, TokenManager tokenManager) {
         Map<String, Integer> costs = plugin.getMotdCosts();
