@@ -467,7 +467,7 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         }
         // Load data async and show info in callback
         playerDataManager.loadPlayerData(player, currentHearts -> {
-            int maxHearts = slApi.getMaxHearts();
+            int maxHearts = slApi.getPlayerMaxHearts(player.getUniqueId());
             player.sendMessage(Component.text("--- Heart Info ---").color(NamedTextColor.GOLD));
             player.sendMessage(Component.text("Your current hearts: " + currentHearts + " / " + maxHearts).color(NamedTextColor.YELLOW));
             if (currentHearts < maxHearts) {
@@ -495,7 +495,7 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         }
 
         int currentHearts = playerDataManager.getPlayerHearts(player.getUniqueId());
-        int maxHearts = slApi.getMaxHearts();
+        int maxHearts = slApi.getPlayerMaxHearts(player.getUniqueId());
 
         if (currentHearts >= maxHearts) {
             player.sendMessage(Component.text("You are already at the maximum number of hearts (" + maxHearts + ").").color(NamedTextColor.RED));
