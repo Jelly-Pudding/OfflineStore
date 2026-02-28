@@ -1,5 +1,5 @@
 name: OfflineStore
-version: '1.12'
+version: '1.13'
 main: com.jellypudding.offlineStore.OfflineStore
 api-version: '1.21'
 description: A small shop plugin for MinecraftOffline

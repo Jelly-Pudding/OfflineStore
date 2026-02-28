@@ -44,8 +44,10 @@ public class HelpCommand implements CommandExecutor {
 
         sender.sendMessage(Component.text("• LifeSteal commands: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/withdrawheart").color(NamedTextColor.GREEN))
-                .append(Component.text(" and ").color(NamedTextColor.WHITE))
-                .append(Component.text("/heartrecipe").color(NamedTextColor.GREEN)));
+                .append(Component.text(", ").color(NamedTextColor.WHITE))
+                .append(Component.text("/heartrecipe").color(NamedTextColor.GREEN))
+                .append(Component.text(", ").color(NamedTextColor.WHITE))
+                .append(Component.text("/shrine unban <name>").color(NamedTextColor.GREEN)));
 
         sender.sendMessage(Component.text("• Vote to skip the day: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/goodnight").color(NamedTextColor.GREEN)));
@@ -75,14 +77,13 @@ public class HelpCommand implements CommandExecutor {
         sender.sendMessage(Component.text("• Kill yourself: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/kill").color(NamedTextColor.RED)));
 
-        sender.sendMessage(Component.text("• Shop to buy hearts, coloured names and custom MOTDS with tokens: ").color(NamedTextColor.WHITE)
+        sender.sendMessage(Component.text("• Shop to buy coloured names and custom MOTDS with tokens: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/shop").color(NamedTextColor.GREEN)));
 
         sender.sendMessage(Component.text("• Get tokens by voting: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/vote").color(NamedTextColor.GREEN)));
 
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.text("Links:").color(NamedTextColor.AQUA));
 
         Component discordLink = Component.text("🔗 Click Here to Join Our Discord Server")
                 .color(NamedTextColor.LIGHT_PURPLE)
