@@ -92,6 +92,8 @@ public class HelpCommand implements CommandExecutor {
                 .hoverEvent(HoverEvent.showText(Component.text("Click to open Discord invite").color(NamedTextColor.YELLOW)));
         sender.sendMessage(discordLink);
 
+        sender.sendMessage(Component.empty());
+
         Component websiteLink = Component.text("🌐 Visit Our Website")
                 .color(NamedTextColor.GREEN)
                 .decorate(TextDecoration.UNDERLINED)
