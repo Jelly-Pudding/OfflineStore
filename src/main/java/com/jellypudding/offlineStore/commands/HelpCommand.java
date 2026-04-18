@@ -15,7 +15,7 @@ import java.util.List;
 
 public class HelpCommand implements CommandExecutor {
 
-    private static final int TOTAL_PAGES = 4;
+    private static final int TOTAL_PAGES = 3;
 
     private final OfflineStore plugin;
 
@@ -49,7 +49,6 @@ public class HelpCommand implements CommandExecutor {
             case 1 -> sendPageOne(sender);
             case 2 -> sendPageTwo(sender);
             case 3 -> sendPageThree(sender);
-            case 4 -> sendPageFour(sender);
         }
 
         sender.sendMessage(Component.empty());
@@ -120,9 +119,7 @@ public class HelpCommand implements CommandExecutor {
                 .append(Component.text("/goodrep <player>").color(NamedTextColor.GREEN))
                 .append(Component.text(" or ").color(NamedTextColor.WHITE))
                 .append(Component.text("/badrep <player>").color(NamedTextColor.RED)));
-    }
 
-    private void sendPageThree(CommandSender sender) {
         sender.sendMessage(Component.text("• LifeSteal commands: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/withdrawheart").color(NamedTextColor.GREEN))
                 .append(Component.text(", ").color(NamedTextColor.WHITE))
@@ -137,7 +134,7 @@ public class HelpCommand implements CommandExecutor {
                 .append(Component.text("/vote").color(NamedTextColor.GREEN)));
     }
 
-    private void sendPageFour(CommandSender sender) {
+    private void sendPageThree(CommandSender sender) {
         sender.sendMessage(Component.text("• Browse active bounties: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/bounty").color(NamedTextColor.GREEN))
                 .append(Component.text(" or ").color(NamedTextColor.WHITE))
@@ -149,9 +146,10 @@ public class HelpCommand implements CommandExecutor {
         sender.sendMessage(Component.text("• View bounties on a player: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/bounty view <player>").color(NamedTextColor.GREEN)));
 
-        sender.sendMessage(Component.text("• Your placed / on you: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/bounty mine").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
+        sender.sendMessage(Component.text("• Bounties you've placed: ").color(NamedTextColor.WHITE)
+                .append(Component.text("/bounty mine").color(NamedTextColor.GREEN)));
+
+        sender.sendMessage(Component.text("• Bounties placed on you: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/bounty me").color(NamedTextColor.GREEN)));
 
         sender.sendMessage(Component.text("• Cancel a bounty: ").color(NamedTextColor.WHITE)
