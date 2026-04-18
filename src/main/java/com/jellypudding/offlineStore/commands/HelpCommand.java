@@ -41,7 +41,7 @@ public class HelpCommand implements CommandExecutor {
     }
 
     private void sendPage(CommandSender sender, int page) {
-        sender.sendMessage(Component.text("═════════").color(NamedTextColor.GOLD));
+        sender.sendMessage(Component.text("═══════════").color(NamedTextColor.GOLD));
         sender.sendMessage(Component.text("Help - Page " + page + " of " + TOTAL_PAGES).color(NamedTextColor.GOLD));
 
         if (page == 1) {
@@ -56,7 +56,7 @@ public class HelpCommand implements CommandExecutor {
 
         sender.sendMessage(Component.empty());
         sendNavigation(sender, page);
-        sender.sendMessage(Component.text("═════════").color(NamedTextColor.GOLD));
+        sender.sendMessage(Component.text("═══════════").color(NamedTextColor.GOLD));
     }
 
     private void sendPageOne(CommandSender sender) {
