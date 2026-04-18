@@ -1,5 +1,5 @@
 name: OfflineStore
-version: '1.13'
+version: '1.14'
 main: com.jellypudding.offlineStore.OfflineStore
 api-version: '1.21'
 description: A small shop plugin for MinecraftOffline
@@ -18,7 +18,7 @@ commands:
     permission: offlinestore.use
   help:
     description: Display helpful information about server commands and features.
-    usage: /help
+    usage: /help [page]
     permission: offlinestore.use
   kill:
     description: Kill yourself.
