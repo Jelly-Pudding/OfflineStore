@@ -37,11 +37,12 @@ public final class OfflineStore extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        loadConfiguration();
 
         // Initialise data managers
         this.colourOwnershipManager = new ColorOwnershipManager(this);
         this.motdManager = new MotdManager(this);
+
+        loadConfiguration();
 
         // Hook into SimpleVote
         Plugin simpleVotePlugin = Bukkit.getPluginManager().getPlugin("SimpleVote");
