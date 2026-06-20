@@ -83,6 +83,16 @@ public class HelpCommand implements CommandExecutor {
         sender.sendMessage(Component.text("• Kill yourself: ").color(NamedTextColor.WHITE)
                 .append(Component.text("/kill").color(NamedTextColor.RED)));
 
+        sender.sendMessage(Component.text("• Talk if your account can't chat: ").color(NamedTextColor.WHITE)
+                .append(Component.text("/c <message>").color(NamedTextColor.GREEN)));
+
+        sender.sendMessage(Component.text("• Private messages and emotes: ").color(NamedTextColor.WHITE)
+                .append(Component.text("/msg <player> <message>").color(NamedTextColor.GREEN))
+                .append(Component.text(", ").color(NamedTextColor.WHITE))
+                .append(Component.text("/r <message>").color(NamedTextColor.GREEN))
+                .append(Component.text(", ").color(NamedTextColor.WHITE))
+                .append(Component.text("/me <action>").color(NamedTextColor.GREEN)));
+
         sender.sendMessage(Component.empty());
 
         Component discordLink = Component.text("🔗 Click Here to Join Our Discord Server")

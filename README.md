@@ -1,6 +1,6 @@
 # OfflineStore
 
-A Paper 26.1.2 plugin designed for [minecraftoffline.net](https://www.minecraftoffline.net).
+A Paper 26.2 plugin designed for [minecraftoffline.net](https://www.minecraftoffline.net).
 
 A token-powered shop that lets players spend SimpleVote tokens on cosmetic and server-personalisation items. Players can buy name colours applied via ChromaTag, extra health hearts via SimpleLifesteal, and custom second-line MOTD messages that appear on the server list. MOTDs are purchased for a fixed duration and randomly rotated on the server list until they expire.
 

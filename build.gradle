@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'com.jellypudding'
-version = '1.15'
+version = '1.16'
 
 repositories {
     mavenCentral()
@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
+    compileOnly("io.papermc.paper:paper-api:26.2.build.+")
     compileOnly files('libs/SimpleVote-2.6.jar')
     compileOnly files('libs/ChromaTag-1.2.7.jar')
     compileOnly files('libs/SimpleLifesteal-2.1.jar')
