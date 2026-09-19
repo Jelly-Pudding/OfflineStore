@@ -352,7 +352,7 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
                  player.sendMessage(message.build());
              });
 
-        player.sendMessage(Component.text("--------------------").color(NamedTextColor.GOLD));
+        player.sendMessage(Component.text("-------------------").color(NamedTextColor.GOLD));
     }
 
     private void buyColour(Player player, String colourName, @NotNull ChromaTag chromaTag) {
@@ -576,7 +576,7 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
                         .clickEvent(ClickEvent.runCommand("/shop motd my")))
                 .append(Component.text(" to see your active MOTDs.")));
         player.sendMessage(Component.text("Colours: Use & for colours (for example &cRed &aGreen)").color(NamedTextColor.GRAY));
-        player.sendMessage(Component.text("------------------").color(NamedTextColor.GOLD));
+        player.sendMessage(Component.text("-----------------").color(NamedTextColor.GOLD));
     }
 
     private void showMotdBuyPreview(Player player, MotdManager motdManager, TokenManager tokenManager, String duration, String message) {
