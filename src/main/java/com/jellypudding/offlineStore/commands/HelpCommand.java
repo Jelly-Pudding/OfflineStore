@@ -17,9 +17,11 @@ import java.util.List;
 public class HelpCommand implements TabExecutor {
 
     private static final String[] PAGE_TITLES = {
-            "Getting Around & Chat",
-            "Stats, Reputation & Shop",
-            "Bounties"
+            "Basics",
+            "Lifesteal & Shop",
+            "Bounties",
+            "Chat & Community",
+            "Stats & Reputation"
     };
     private static final int TOTAL_PAGES = PAGE_TITLES.length;
 
@@ -65,15 +67,14 @@ public class HelpCommand implements TabExecutor {
     private void sendPage(CommandSender sender, int page) {
         sender.sendMessage(Component.empty());
         sendHeader(sender, page);
-        sender.sendMessage(Component.text("Click any command to put it in your chat box.")
-                .color(NamedTextColor.DARK_GRAY)
-                .decorate(TextDecoration.ITALIC));
         sender.sendMessage(Component.empty());
 
         switch (page) {
-            case 1 -> sendPageOne(sender);
-            case 2 -> sendPageTwo(sender);
-            case 3 -> sendPageThree(sender);
+            case 1 -> sendBasics(sender);
+            case 2 -> sendLifestealAndShop(sender);
+            case 3 -> sendBounties(sender);
+            case 4 -> sendChatAndCommunity(sender);
+            case 5 -> sendStatsAndReputation(sender);
         }
 
         sender.sendMessage(Component.empty());
@@ -89,53 +90,21 @@ public class HelpCommand implements TabExecutor {
                 .append(Component.text(" ═══").color(NamedTextColor.GOLD)));
     }
 
-    private void sendPageOne(CommandSender sender) {
+    private void sendBasics(CommandSender sender) {
         section(sender, "Getting around");
         entry(sender, "Go to spawn", cmd("/spawn"));
         entry(sender, "Set and use your home", cmd("/sethome"), cmd("/home"));
         entry(sender, "Teleport to a player", cmd("/tpa <player>"));
         entry(sender, "Ask a player to teleport to you", cmd("/tpahere <player>"));
         entry(sender, "Respond to a request", cmd("/tpaccept"), danger("/tpdeny"), danger("/tpacancel"));
+
+        sender.sendMessage(Component.empty());
+        section(sender, "Other");
         entry(sender, "Vote to skip the night", cmd("/goodnight"));
         entry(sender, "Kill yourself", danger("/kill"));
-
-        sender.sendMessage(Component.empty());
-        section(sender, "Chat");
-        entry(sender, "Talk if your account can't chat", cmd("/c <message>"));
-        entry(sender, "Private message a player", cmd("/msg <player> <message>"), cmd("/r <message>"));
-        entry(sender, "Do an emote", cmd("/me <action>"));
-
-        sender.sendMessage(Component.empty());
-        section(sender, "Community");
-        entry(sender, "Join our Discord", cmd("/discord"));
-        entry(sender, "Support the server", cmd("/donate"));
-
-        sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.text("🔗 Discord")
-                .color(NamedTextColor.LIGHT_PURPLE)
-                .decorate(TextDecoration.UNDERLINED)
-                .clickEvent(ClickEvent.openUrl(DiscordCommand.DISCORD_URL))
-                .hoverEvent(HoverEvent.showText(Component.text("Click to open the Discord invite").color(NamedTextColor.YELLOW)))
-                .append(Component.text("   ").decoration(TextDecoration.UNDERLINED, false))
-                .append(Component.text("🌐 Website")
-                        .color(NamedTextColor.GREEN)
-                        .decorate(TextDecoration.UNDERLINED)
-                        .clickEvent(ClickEvent.openUrl(WEBSITE_URL))
-                        .hoverEvent(HoverEvent.showText(Component.text("Click to open minecraftoffline.net").color(NamedTextColor.YELLOW)))));
     }
 
-    private void sendPageTwo(CommandSender sender) {
-        section(sender, "Player stats");
-        entry(sender, "When a player was first and last seen", cmd("/firstseen <player>"), cmd("/lastseen <player>"));
-        entry(sender, "Time played, kills and deaths", cmd("/timeplayed"), cmd("/kills"), cmd("/deaths"));
-        entry(sender, "Chat activity and reputation", cmd("/chatter"), cmd("/rep"));
-        entry(sender, "Top players", cmd("/leaderboard"));
-
-        sender.sendMessage(Component.empty());
-        section(sender, "Reputation");
-        entry(sender, "Give a player good or bad rep", cmd("/goodrep <player>"), danger("/badrep <player>"));
-
-        sender.sendMessage(Component.empty());
+    private void sendLifestealAndShop(CommandSender sender) {
         section(sender, "Lifesteal");
         entry(sender, "Turn a heart into an item", cmd("/withdrawheart"));
         entry(sender, "See how to craft a heart", cmd("/heartrecipe"));
@@ -147,8 +116,7 @@ public class HelpCommand implements TabExecutor {
         entry(sender, "Earn tokens by voting", cmd("/vote"));
     }
 
-    private void sendPageThree(CommandSender sender) {
-        section(sender, "Bounties");
+    private void sendBounties(CommandSender sender) {
         entry(sender, "Browse active bounties", cmd("/bounty"), cmd("/bounty list"));
         entry(sender, "Place a bounty on a player", cmd("/bounty place <player>"));
         entry(sender, "View bounties on a player", cmd("/bounty view <player>"));
@@ -156,6 +124,43 @@ public class HelpCommand implements TabExecutor {
         entry(sender, "Bounties placed on you", cmd("/bounty me"));
         entry(sender, "Cancel a bounty", danger("/bounty cancel <id>"));
         entry(sender, "Claim returned items", cmd("/bounty claimreturns"));
+    }
+
+    private void sendChatAndCommunity(CommandSender sender) {
+        section(sender, "Chat");
+        entry(sender, "Talk if your account can't chat", cmd("/c <message>"));
+        entry(sender, "Private message a player", cmd("/msg <player> <message>"), cmd("/r <message>"));
+        entry(sender, "Do an emote", cmd("/me <action>"));
+
+        sender.sendMessage(Component.empty());
+        section(sender, "Community");
+        entry(sender, "Join our Discord", cmd("/discord"));
+        entry(sender, "Support the server", cmd("/donate"));
+
+        sender.sendMessage(Component.empty());
+        sender.sendMessage(Component.text("Discord")
+                .color(NamedTextColor.LIGHT_PURPLE)
+                .decorate(TextDecoration.UNDERLINED)
+                .clickEvent(ClickEvent.openUrl(DiscordCommand.DISCORD_URL))
+                .hoverEvent(HoverEvent.showText(Component.text("Click to open the Discord invite").color(NamedTextColor.YELLOW)))
+                .append(Component.text("   ").decoration(TextDecoration.UNDERLINED, false))
+                .append(Component.text("Website")
+                        .color(NamedTextColor.GREEN)
+                        .decorate(TextDecoration.UNDERLINED)
+                        .clickEvent(ClickEvent.openUrl(WEBSITE_URL))
+                        .hoverEvent(HoverEvent.showText(Component.text("Click to open minecraftoffline.net").color(NamedTextColor.YELLOW)))));
+    }
+
+    private void sendStatsAndReputation(CommandSender sender) {
+        section(sender, "Player stats");
+        entry(sender, "When a player was first and last seen", cmd("/firstseen <player>"), cmd("/lastseen <player>"));
+        entry(sender, "Time played, kills and deaths", cmd("/timeplayed"), cmd("/kills"), cmd("/deaths"));
+        entry(sender, "Chat activity and reputation", cmd("/chatter"), cmd("/rep"));
+        entry(sender, "Top players", cmd("/leaderboard"));
+
+        sender.sendMessage(Component.empty());
+        section(sender, "Reputation");
+        entry(sender, "Give a player good or bad rep", cmd("/goodrep <player>"), danger("/badrep <player>"));
     }
 
     private void sendNavigation(CommandSender sender, int page) {
@@ -190,7 +195,7 @@ public class HelpCommand implements TabExecutor {
     }
 
     private static void section(CommandSender sender, String title) {
-        sender.sendMessage(Component.text(title).color(NamedTextColor.AQUA).decorate(TextDecoration.BOLD));
+        sender.sendMessage(Component.text(title).color(NamedTextColor.AQUA));
     }
 
     private static void entry(CommandSender sender, String description, Component... commands) {

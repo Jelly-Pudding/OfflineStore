@@ -33,7 +33,7 @@ A token-powered shop that lets players spend SimpleVote tokens on cosmetic and s
 | `/shop motd confirm <duration>` | Confirm and purchase the previewed message |
 | `/shop motd my` | Show your currently active MOTD message |
 | `/rules` | Display the server rules |
-| `/help [page]` | Display server help across three pages |
+| `/help [page]` | Display server help across five pages |
 | `/kill` | Kill yourself |
 | `/donate` | Show the token store link |
 | `/discord` | Show a clickable Discord invite link |
