@@ -5,6 +5,7 @@ import com.jellypudding.offlineStore.commands.ShopCommand;
 import com.jellypudding.offlineStore.commands.RulesCommand;
 import com.jellypudding.offlineStore.commands.HelpCommand;
 import com.jellypudding.offlineStore.commands.DonateCommand;
+import com.jellypudding.offlineStore.commands.DiscordCommand;
 import com.jellypudding.offlineStore.commands.KillCommand;
 import com.jellypudding.offlineStore.commands.PluginsCommand;
 import com.jellypudding.offlineStore.data.ColorOwnershipManager;
@@ -86,10 +87,15 @@ public final class OfflineStore extends JavaPlugin {
         
         HelpCommand helpCommand = new HelpCommand(this);
         getCommand("help").setExecutor(helpCommand);
+        getCommand("help").setTabCompleter(helpCommand);
 
         // Register donate command
         DonateCommand donateCommand = new DonateCommand(this);
         getCommand("donate").setExecutor(donateCommand);
+
+        // Register discord command
+        DiscordCommand discordCommand = new DiscordCommand(this);
+        getCommand("discord").setExecutor(discordCommand);
 
         // Register kill command
         KillCommand killCommand = new KillCommand(this);

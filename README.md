@@ -36,6 +36,7 @@ A token-powered shop that lets players spend SimpleVote tokens on cosmetic and s
 | `/help [page]` | Display server help across three pages |
 | `/kill` | Kill yourself |
 | `/donate` | Show the token store link |
+| `/discord` | Show a clickable Discord invite link |
 | `/plugins` | Show server plugin information |
 
 All commands require the `offlinestore.use` permission (default: `true`).

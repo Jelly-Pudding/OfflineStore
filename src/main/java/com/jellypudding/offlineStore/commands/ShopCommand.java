@@ -291,7 +291,7 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         String currentColourName = getColourName(currentColour);
         Set<String> ownedColours = ownershipManager.getOwnedColors(player.getUniqueId());
 
-        player.sendMessage(Component.text("--- Colour Shop ---").color(NamedTextColor.GOLD));
+        player.sendMessage(Component.text("---- Colour Shop ----").color(NamedTextColor.GOLD));
         player.sendMessage(Component.text("Your tokens: " + currentTokens).color(NamedTextColor.YELLOW));
         if (currentColour != null) {
              // Display the name, coloured
@@ -352,7 +352,7 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
                  player.sendMessage(message.build());
              });
 
-        player.sendMessage(Component.text("-------------------").color(NamedTextColor.GOLD));
+        player.sendMessage(Component.text("--------------------").color(NamedTextColor.GOLD));
     }
 
     private void buyColour(Player player, String colourName, @NotNull ChromaTag chromaTag) {
@@ -468,10 +468,10 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         // Load data async and show info in callback
         playerDataManager.loadPlayerData(player, currentHearts -> {
             int maxHearts = slApi.getPlayerMaxHearts(player.getUniqueId());
-            player.sendMessage(Component.text("--- Heart Info ---").color(NamedTextColor.GOLD));
+            player.sendMessage(Component.text("---- Heart Info ----").color(NamedTextColor.GOLD));
             player.sendMessage(Component.text("Your current hearts: " + currentHearts + " / " + maxHearts).color(NamedTextColor.YELLOW));
             if (currentHearts < maxHearts) {
-                player.sendMessage(Component.text("You can buy more hearts!").color(NamedTextColor.GREEN));
+                player.sendMessage(Component.text("You can buy more hearts").color(NamedTextColor.GREEN));
                 player.sendMessage(Component.text("Use ")
                         .append(Component.text("/shop heart buy", NamedTextColor.AQUA).clickEvent(ClickEvent.suggestCommand("/shop heart buy")))
                         .append(Component.text(" to purchase 1 heart for " + heartCost + " tokens.")));
@@ -528,7 +528,7 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
         Map<String, Integer> costs = plugin.getMotdCosts();
         int currentTokens = tokenManager.getTokens(player.getUniqueId());
 
-        player.sendMessage(Component.text("--- MOTD Shop ---").color(NamedTextColor.GOLD));
+        player.sendMessage(Component.text("---- MOTD Shop ----").color(NamedTextColor.GOLD));
         player.sendMessage(Component.text("Your tokens: " + currentTokens).color(NamedTextColor.YELLOW));
         player.sendMessage(Component.text("Purchase a custom MOTD message that appears in the server list.").color(NamedTextColor.GRAY));
         player.sendMessage(Component.text("First line is always:").color(NamedTextColor.AQUA));
@@ -576,7 +576,7 @@ public class ShopCommand implements CommandExecutor, TabCompleter {
                         .clickEvent(ClickEvent.runCommand("/shop motd my")))
                 .append(Component.text(" to see your active MOTDs.")));
         player.sendMessage(Component.text("Colours: Use & for colours (for example &cRed &aGreen)").color(NamedTextColor.GRAY));
-        player.sendMessage(Component.text("-----------------").color(NamedTextColor.GOLD));
+        player.sendMessage(Component.text("------------------").color(NamedTextColor.GOLD));
     }
 
     private void showMotdBuyPreview(Player player, MotdManager motdManager, TokenManager tokenManager, String duration, String message) {

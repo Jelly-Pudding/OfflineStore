@@ -7,15 +7,23 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HelpCommand implements CommandExecutor {
+public class HelpCommand implements TabExecutor {
 
-    private static final int TOTAL_PAGES = 3;
+    private static final String[] PAGE_TITLES = {
+            "Getting Around & Chat",
+            "Stats, Reputation & Shop",
+            "Bounties"
+    };
+    private static final int TOTAL_PAGES = PAGE_TITLES.length;
+
+    private static final String WEBSITE_URL = "https://www.minecraftoffline.net";
 
     private final OfflineStore plugin;
 
@@ -24,7 +32,7 @@ public class HelpCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         int page = 1;
         if (args.length >= 1) {
             try {
@@ -40,13 +48,27 @@ public class HelpCommand implements CommandExecutor {
         return true;
     }
 
-    private void sendPage(CommandSender sender, int page) {
-        sender.sendMessage(Component.text("═══════════").color(NamedTextColor.GOLD));
-        sender.sendMessage(Component.text("Help - Page " + page + " of " + TOTAL_PAGES).color(NamedTextColor.GOLD));
-
-        if (page == 1) {
-            sender.sendMessage(Component.text("Available Commands:").color(NamedTextColor.AQUA));
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        List<String> completions = new ArrayList<>();
+        if (args.length == 1) {
+            for (int i = 1; i <= TOTAL_PAGES; i++) {
+                String pageNumber = String.valueOf(i);
+                if (pageNumber.startsWith(args[0])) {
+                    completions.add(pageNumber);
+                }
+            }
         }
+        return completions;
+    }
+
+    private void sendPage(CommandSender sender, int page) {
+        sender.sendMessage(Component.empty());
+        sendHeader(sender, page);
+        sender.sendMessage(Component.text("Click any command to put it in your chat box.")
+                .color(NamedTextColor.DARK_GRAY)
+                .decorate(TextDecoration.ITALIC));
+        sender.sendMessage(Component.empty());
 
         switch (page) {
             case 1 -> sendPageOne(sender);
@@ -56,153 +78,165 @@ public class HelpCommand implements CommandExecutor {
 
         sender.sendMessage(Component.empty());
         sendNavigation(sender, page);
-        sender.sendMessage(Component.text("═══════════").color(NamedTextColor.GOLD));
+    }
+
+    private void sendHeader(CommandSender sender, int page) {
+        sender.sendMessage(Component.text("═══ ").color(NamedTextColor.GOLD)
+                .append(Component.text("Help").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD))
+                .append(Component.text(" • ").color(NamedTextColor.DARK_GRAY))
+                .append(Component.text(PAGE_TITLES[page - 1]).color(NamedTextColor.AQUA))
+                .append(Component.text(" (" + page + "/" + TOTAL_PAGES + ")").color(NamedTextColor.GRAY))
+                .append(Component.text(" ═══").color(NamedTextColor.GOLD)));
     }
 
     private void sendPageOne(CommandSender sender) {
-        sender.sendMessage(Component.text("• Spawn: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/spawn").color(NamedTextColor.GREEN)));
-
-        sender.sendMessage(Component.text("• Home commands: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/sethome").color(NamedTextColor.GREEN))
-                .append(Component.text(" and ").color(NamedTextColor.WHITE))
-                .append(Component.text("/home").color(NamedTextColor.GREEN)));
-
-        sender.sendMessage(Component.text("• Teleport requests: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/tpa").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/tpaccept").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/tpdeny").color(NamedTextColor.RED))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/tpacancel").color(NamedTextColor.RED)));
-
-        sender.sendMessage(Component.text("• Vote to skip the day: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/goodnight").color(NamedTextColor.GREEN)));
-
-        sender.sendMessage(Component.text("• Kill yourself: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/kill").color(NamedTextColor.RED)));
-
-        sender.sendMessage(Component.text("• Talk if your account can't chat: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/c <message>").color(NamedTextColor.GREEN)));
-
-        sender.sendMessage(Component.text("• Private messages and emotes: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/msg <player> <message>").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/r <message>").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/me <action>").color(NamedTextColor.GREEN)));
+        section(sender, "Getting around");
+        entry(sender, "Go to spawn", cmd("/spawn"));
+        entry(sender, "Set and use your home", cmd("/sethome"), cmd("/home"));
+        entry(sender, "Teleport to a player", cmd("/tpa <player>"));
+        entry(sender, "Ask a player to teleport to you", cmd("/tpahere <player>"));
+        entry(sender, "Respond to a request", cmd("/tpaccept"), danger("/tpdeny"), danger("/tpacancel"));
+        entry(sender, "Vote to skip the night", cmd("/goodnight"));
+        entry(sender, "Kill yourself", danger("/kill"));
 
         sender.sendMessage(Component.empty());
+        section(sender, "Chat");
+        entry(sender, "Talk if your account can't chat", cmd("/c <message>"));
+        entry(sender, "Private message a player", cmd("/msg <player> <message>"), cmd("/r <message>"));
+        entry(sender, "Do an emote", cmd("/me <action>"));
 
-        Component discordLink = Component.text("🔗 Click Here to Join Our Discord Server")
+        sender.sendMessage(Component.empty());
+        section(sender, "Community");
+        entry(sender, "Join our Discord", cmd("/discord"));
+        entry(sender, "Support the server", cmd("/donate"));
+
+        sender.sendMessage(Component.empty());
+        sender.sendMessage(Component.text("🔗 Discord")
                 .color(NamedTextColor.LIGHT_PURPLE)
                 .decorate(TextDecoration.UNDERLINED)
-                .clickEvent(ClickEvent.openUrl("https://discord.gg/a83FESY3jF"))
-                .hoverEvent(HoverEvent.showText(Component.text("Click to open Discord invite").color(NamedTextColor.YELLOW)));
-        sender.sendMessage(discordLink);
-
-        sender.sendMessage(Component.empty());
-
-        Component websiteLink = Component.text("🌐 Visit Our Website")
-                .color(NamedTextColor.GREEN)
-                .decorate(TextDecoration.UNDERLINED)
-                .clickEvent(ClickEvent.openUrl("https://www.minecraftoffline.net"))
-                .hoverEvent(HoverEvent.showText(Component.text("Click to open website").color(NamedTextColor.YELLOW)));
-        sender.sendMessage(websiteLink);
+                .clickEvent(ClickEvent.openUrl(DiscordCommand.DISCORD_URL))
+                .hoverEvent(HoverEvent.showText(Component.text("Click to open the Discord invite").color(NamedTextColor.YELLOW)))
+                .append(Component.text("   ").decoration(TextDecoration.UNDERLINED, false))
+                .append(Component.text("🌐 Website")
+                        .color(NamedTextColor.GREEN)
+                        .decorate(TextDecoration.UNDERLINED)
+                        .clickEvent(ClickEvent.openUrl(WEBSITE_URL))
+                        .hoverEvent(HoverEvent.showText(Component.text("Click to open minecraftoffline.net").color(NamedTextColor.YELLOW)))));
     }
 
     private void sendPageTwo(CommandSender sender) {
-        sender.sendMessage(Component.text("• Player stats: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/firstseen").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/lastseen").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/timeplayed").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/kills").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/deaths").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/chatter").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/rep").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/leaderboard").color(NamedTextColor.GREEN)));
+        section(sender, "Player stats");
+        entry(sender, "When a player was first and last seen", cmd("/firstseen <player>"), cmd("/lastseen <player>"));
+        entry(sender, "Time played, kills and deaths", cmd("/timeplayed"), cmd("/kills"), cmd("/deaths"));
+        entry(sender, "Chat activity and reputation", cmd("/chatter"), cmd("/rep"));
+        entry(sender, "Top players", cmd("/leaderboard"));
 
-        sender.sendMessage(Component.text("• Give reputation: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/goodrep <player>").color(NamedTextColor.GREEN))
-                .append(Component.text(" or ").color(NamedTextColor.WHITE))
-                .append(Component.text("/badrep <player>").color(NamedTextColor.RED)));
+        sender.sendMessage(Component.empty());
+        section(sender, "Reputation");
+        entry(sender, "Give a player good or bad rep", cmd("/goodrep <player>"), danger("/badrep <player>"));
 
-        sender.sendMessage(Component.text("• LifeSteal commands: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/withdrawheart").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/heartrecipe").color(NamedTextColor.GREEN))
-                .append(Component.text(", ").color(NamedTextColor.WHITE))
-                .append(Component.text("/shrine unban <name>").color(NamedTextColor.GREEN)));
+        sender.sendMessage(Component.empty());
+        section(sender, "Lifesteal");
+        entry(sender, "Turn a heart into an item", cmd("/withdrawheart"));
+        entry(sender, "See how to craft a heart", cmd("/heartrecipe"));
+        entry(sender, "Bring back a player who lost all hearts", cmd("/shrine unban <player>"));
 
-        sender.sendMessage(Component.text("• Shop for coloured names and custom MOTDs with tokens: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/shop").color(NamedTextColor.GREEN)));
-
-        sender.sendMessage(Component.text("• Get tokens by voting: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/vote").color(NamedTextColor.GREEN)));
+        sender.sendMessage(Component.empty());
+        section(sender, "Shop");
+        entry(sender, "Buy name colours, hearts and custom MOTDs with tokens", cmd("/shop"));
+        entry(sender, "Earn tokens by voting", cmd("/vote"));
     }
 
     private void sendPageThree(CommandSender sender) {
-        sender.sendMessage(Component.text("• Browse active bounties: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/bounty").color(NamedTextColor.GREEN))
-                .append(Component.text(" or ").color(NamedTextColor.WHITE))
-                .append(Component.text("/bounty list").color(NamedTextColor.GREEN)));
-
-        sender.sendMessage(Component.text("• Place a bounty on a player: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/bounty place <player>").color(NamedTextColor.GREEN)));
-
-        sender.sendMessage(Component.text("• View bounties on a player: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/bounty view <player>").color(NamedTextColor.GREEN)));
-
-        sender.sendMessage(Component.text("• Bounties you've placed: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/bounty mine").color(NamedTextColor.GREEN)));
-
-        sender.sendMessage(Component.text("• Bounties placed on you: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/bounty me").color(NamedTextColor.GREEN)));
-
-        sender.sendMessage(Component.text("• Cancel a bounty: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/bounty cancel <id>").color(NamedTextColor.RED)));
-
-        sender.sendMessage(Component.text("• Claim returned items: ").color(NamedTextColor.WHITE)
-                .append(Component.text("/bounty claimreturns").color(NamedTextColor.GREEN)));
+        section(sender, "Bounties");
+        entry(sender, "Browse active bounties", cmd("/bounty"), cmd("/bounty list"));
+        entry(sender, "Place a bounty on a player", cmd("/bounty place <player>"));
+        entry(sender, "View bounties on a player", cmd("/bounty view <player>"));
+        entry(sender, "Bounties you've placed", cmd("/bounty mine"));
+        entry(sender, "Bounties placed on you", cmd("/bounty me"));
+        entry(sender, "Cancel a bounty", danger("/bounty cancel <id>"));
+        entry(sender, "Claim returned items", cmd("/bounty claimreturns"));
     }
 
     private void sendNavigation(CommandSender sender, int page) {
-        List<Component> parts = new ArrayList<>();
+        Component line = Component.empty();
 
         if (page > 1) {
-            parts.add(Component.text("« Previous")
-                    .color(NamedTextColor.YELLOW)
-                    .decorate(TextDecoration.UNDERLINED)
-                    .clickEvent(ClickEvent.runCommand("/help " + (page - 1)))
-                    .hoverEvent(HoverEvent.showText(Component.text("Go to page " + (page - 1)).color(NamedTextColor.GRAY))));
+            line = line.append(pageLink("« Previous", page - 1));
         } else {
-            parts.add(Component.text("« Previous").color(NamedTextColor.DARK_GRAY));
+            line = line.append(Component.text("« Previous").color(NamedTextColor.DARK_GRAY));
         }
 
-        parts.add(Component.text("   Page " + page + "/" + TOTAL_PAGES + "   ").color(NamedTextColor.GRAY));
+        line = line.append(Component.text("   "));
+        for (int i = 1; i <= TOTAL_PAGES; i++) {
+            if (i == page) {
+                line = line.append(Component.text("[" + i + "]").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD));
+            } else {
+                line = line.append(pageLink("[" + i + "]", i));
+            }
+            if (i < TOTAL_PAGES) {
+                line = line.append(Component.text(" "));
+            }
+        }
+        line = line.append(Component.text("   "));
 
         if (page < TOTAL_PAGES) {
-            parts.add(Component.text("Next »")
-                    .color(NamedTextColor.YELLOW)
-                    .decorate(TextDecoration.UNDERLINED)
-                    .clickEvent(ClickEvent.runCommand("/help " + (page + 1)))
-                    .hoverEvent(HoverEvent.showText(Component.text("Go to page " + (page + 1)).color(NamedTextColor.GRAY))));
+            line = line.append(pageLink("Next »", page + 1));
         } else {
-            parts.add(Component.text("Next »").color(NamedTextColor.DARK_GRAY));
+            line = line.append(Component.text("Next »").color(NamedTextColor.DARK_GRAY));
         }
 
-        Component line = Component.empty();
-        for (Component part : parts) {
-            line = line.append(part);
-        }
         sender.sendMessage(line);
+    }
+
+    private static void section(CommandSender sender, String title) {
+        sender.sendMessage(Component.text(title).color(NamedTextColor.AQUA).decorate(TextDecoration.BOLD));
+    }
+
+    private static void entry(CommandSender sender, String description, Component... commands) {
+        Component line = Component.text(" • ").color(NamedTextColor.DARK_GRAY)
+                .append(Component.text(description + ": ").color(NamedTextColor.WHITE));
+
+        for (int i = 0; i < commands.length; i++) {
+            if (i > 0) {
+                line = line.append(Component.text(", ").color(NamedTextColor.GRAY));
+            }
+            line = line.append(commands[i]);
+        }
+
+        sender.sendMessage(line);
+    }
+
+    private static Component cmd(String command) {
+        return clickable(command, NamedTextColor.GREEN);
+    }
+
+    private static Component danger(String command) {
+        return clickable(command, NamedTextColor.RED);
+    }
+
+    private static Component clickable(String command, NamedTextColor colour) {
+        return Component.text(command)
+                .color(colour)
+                .clickEvent(ClickEvent.suggestCommand(typeablePart(command)))
+                .hoverEvent(HoverEvent.showText(Component.text("Click to type ").color(NamedTextColor.GRAY)
+                        .append(Component.text(command).color(colour))));
+    }
+
+    private static String typeablePart(String command) {
+        int placeholder = command.indexOf('<');
+        if (placeholder < 0) {
+            return command;
+        }
+        return command.substring(0, placeholder).stripTrailing() + " ";
+    }
+
+    private static Component pageLink(String text, int targetPage) {
+        return Component.text(text)
+                .color(NamedTextColor.YELLOW)
+                .decorate(TextDecoration.UNDERLINED)
+                .clickEvent(ClickEvent.runCommand("/help " + targetPage))
+                .hoverEvent(HoverEvent.showText(Component.text("Page " + targetPage + ": ").color(NamedTextColor.GRAY)
+                        .append(Component.text(PAGE_TITLES[targetPage - 1]).color(NamedTextColor.AQUA))));
     }
 }

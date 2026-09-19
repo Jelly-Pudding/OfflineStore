@@ -28,6 +28,10 @@ commands:
     description: Support the server and buy tokens.
     usage: /donate
     permission: offlinestore.use
+  discord:
+    description: Get a link to the server Discord.
+    usage: /discord
+    permission: offlinestore.use
   plugins:
     description: View information about server plugins.
     usage: /plugins
